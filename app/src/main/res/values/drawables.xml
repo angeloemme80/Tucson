@@ -1,0 +1,6 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <item name="ic_dialog_info" type="drawable">@android:drawable/ic_dialog_info</item>
+    <item name="ic_menu_mylocation" type="drawable">@android:drawable/ic_menu_mylocation</item>
+    <item name="ic_secure" type="drawable">@android:drawable/ic_secure</item>
+
+</resources>
