@@ -105,7 +105,7 @@ public class FacebookLogin extends Fragment {
                                 String id = me.optString("id");
                                 String name = me.optString("name");
 
-                                //chiamo il servizio di fblogin
+                                //chiamo il servizio per la verifica del login di facebook e relativo invio della posizione
                                 new HttpCalls().execute( URL_SERVIZI + id, "POST", "longitude=" + ((MainActivity)getActivity()).getLongitude() + "&latitude=" + ((MainActivity)getActivity()).getLatitude() + "&token=" + AccessToken.getCurrentAccessToken().getToken() );//EAAI42sewJxMBAPEobC1jOsSITrQztFUXwI7qOSbjPzhsJUfGqxIsY3ZBQCb3ex8dBngkupRaqZBDwfEwzDZAJfcQRvBZCPCYQrNSPSPgSSYtqFFmvhiUSzHZBbboHqTBAxwCjFSx4J2Qi5d0OMRXmjxlbZBykGgtaw3oIgQR6myZC5iF9mZCWBScUVie4rmIsqZAMpfZCf2rA2zE6uhwhcBnQN");
                                 /*
                                 progressDialog = ProgressDialog.show(FacebookLoginFragment.this.getContext(), "", getResources().getString(R.string.progress_dialog_message));
