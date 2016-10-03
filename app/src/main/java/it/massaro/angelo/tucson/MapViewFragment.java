@@ -2,11 +2,13 @@ package it.massaro.angelo.tucson;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
@@ -24,9 +26,23 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Map;
+
+import static android.content.Context.MODE_PRIVATE;
+import static it.massaro.angelo.tucson.MainActivity.MY_PREFS_NAME;
+import static it.massaro.angelo.tucson.MainActivity.URL_SERVIZI;
 
 /**
  * Created by Angelo on 17/09/2016.
@@ -139,6 +155,11 @@ public class MapViewFragment extends Fragment {
                 // Zoom out to zoom level 10, animating with a duration of 2 seconds.
                 googleMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
 
+                //Carico lo SharedPreferences
+                final SharedPreferences preferences = getActivity().getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
+                //AsyncTask<String, Void, String> execute = new HttpCalls().execute(URL_SERVIZI, "GET", "id=" + preferences.getString("facebookId","") + "&token=" + preferences.getString("accessToken", ""));
+
+
             }
 
 
@@ -174,6 +195,111 @@ public class MapViewFragment extends Fragment {
     }
 
 
+    private class HttpCalls extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            String sUrl = params[0];
+            String method = params[1];
+            String urlParameters = params[2];
+
+            return requestUrl(sUrl, method, urlParameters);
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            //TODO gestire la risposta
+            Log.i("json", s);
+            ((MainActivity)getActivity()).apriFragmentMappa();
+        }
+
+
+        public String requestUrl(String url, String method, String postParameters)
+        {
+            if (Log.isLoggable("TAG_Url", Log.INFO)) {
+                Log.i("TAG_Url", "Requesting service: " + url);
+            }
+
+            HttpURLConnection urlConnection = null;
+            try {
+                // create connection
+                URL urlToRequest = new URL(url);
+                urlConnection = (HttpURLConnection) urlToRequest.openConnection();
+                //urlConnection.setConnectTimeout(CONNECTION_TIMEOUT);
+                //urlConnection.setReadTimeout(DATARETRIEVAL_TIMEOUT);
+
+                // handle POST parameters
+                if (postParameters != null) {
+
+                    if (Log.isLoggable("TAG_Parameters", Log.INFO)) {
+                        Log.i("TAG_Parameters", "parameters: " + postParameters);
+                    }
+
+                    urlConnection.setDoOutput(true);
+                    urlConnection.setRequestMethod(method);
+                    urlConnection.setFixedLengthStreamingMode(postParameters.getBytes().length);
+                    urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+                    //send the POST out
+                    PrintWriter out = new PrintWriter(urlConnection.getOutputStream());
+                    out.print(postParameters);
+                    out.close();
+                }
+
+                // handle issues
+                int statusCode = urlConnection.getResponseCode();
+                if (statusCode != HttpURLConnection.HTTP_OK) {
+                    // throw some exception
+                }
+
+                // read output (only for GET)
+                if (urlConnection.getRequestMethod().equalsIgnoreCase("GET") && postParameters != null) {
+                    return null;
+                } else {
+                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                    return getResponseText(in);
+                }
+
+
+            } catch (MalformedURLException e) {
+                // handle invalid URL
+            } catch (SocketTimeoutException e) {
+                // hadle timeout
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+            }
+
+            return null;
+        }
+
+        private String getResponseText(InputStream inStream) throws IOException {
+            StringBuilder sb = new StringBuilder();
+            BufferedReader rd = null;
+            try{
+                rd = new BufferedReader(new InputStreamReader(inStream));
+                String line;
+                while ((line = rd.readLine()) != null) {
+                    sb.append(line);
+                }
+            }finally {
+                if (rd != null) {
+                    rd.close();
+                }
+            }
+
+            return sb.toString();
+        }
+
+
+    }
 
     /**
      * Created by admwks on 27/09/2016.
