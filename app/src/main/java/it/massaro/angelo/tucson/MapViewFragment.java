@@ -51,7 +51,7 @@ public class MapViewFragment extends Fragment {
 
     MapView mMapView;
     private GoogleMap googleMap;
-
+    private LatLng myPosition = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -133,23 +133,16 @@ public class MapViewFragment extends Fragment {
                 //Fine refresh posizione
 
                 Location location = locationManager.getLastKnownLocation(provider);
-                LatLng myPosition = null;
-                LatLng positionCasale = null;
+                myPosition = null;
                 if (location != null) {
                     //Passo all'activity longitudine e latitudine
                     ((MainActivity)getActivity()).setLatitude( location.getLatitude() );
                     ((MainActivity)getActivity()).setLongitude( location.getLongitude() );
                     //Configuro il marker con la mia posizione attuale
                     myPosition = new LatLng(location.getLatitude(), location.getLongitude());//POSIZIONE CORRENTE
-                    positionCasale = new LatLng(41.00905027182723, 14.123783111572276);//CASAL DI PRINCIPE
-
-                    googleMap.addMarker(new MarkerOptions().position(myPosition).title("myPosition"));
-                    googleMap.addMarker(new MarkerOptions().position(positionCasale).title("positionCasale"));
-
+                    //googleMap.addMarker(new MarkerOptions().position(myPosition).title("myPosition"));
                     googleMap.moveCamera(CameraUpdateFactory.newLatLng(myPosition));
                 }
-
-
 
                 googleMap.animateCamera(CameraUpdateFactory.zoomIn());
                 // Zoom out to zoom level 10, animating with a duration of 2 seconds.
@@ -157,8 +150,9 @@ public class MapViewFragment extends Fragment {
 
                 //Carico lo SharedPreferences
                 final SharedPreferences preferences = getActivity().getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
-                //AsyncTask<String, Void, String> execute = new HttpCalls().execute(URL_SERVIZI, "GET", "id=" + preferences.getString("facebookId","") + "&token=" + preferences.getString("accessToken", ""));
-
+                //AsyncTask<String, Void, String> execute = new HttpCalls().execute(URL_SERVIZI + "?id=" + preferences.getString("facebookId","") + "&token=" + preferences.getString("accessToken", ""), "GET", null);
+                HttpCalls httpCalls = new HttpCalls(googleMap, myPosition);
+                httpCalls.execute(URL_SERVIZI + "?id=" + preferences.getString("facebookId","") + "&token=" + preferences.getString("accessToken", ""), "GET", null);
 
             }
 
@@ -197,6 +191,11 @@ public class MapViewFragment extends Fragment {
 
     private class HttpCalls extends AsyncTask<String, Void, String> {
 
+        HttpCalls(GoogleMap map, LatLng position) {
+            googleMap = map;
+            myPosition = position;
+        }
+
         @Override
         protected String doInBackground(String... params) {
 
@@ -212,7 +211,21 @@ public class MapViewFragment extends Fragment {
             super.onPostExecute(s);
             //TODO gestire la risposta
             Log.i("json", s);
-            ((MainActivity)getActivity()).apriFragmentMappa();
+
+            googleMap.clear();
+            googleMap.addMarker(new MarkerOptions()
+                    .title("Mia posizione")
+                    .snippet("Is this the right location?")
+                    .position(myPosition))
+                    .setDraggable(true);
+
+            //TODO fare il ciclo for con tutte le posizioni ricavate nel json
+            googleMap.addMarker(new MarkerOptions()
+                    .title("2222222222")
+                    .snippet("22222222Is this the right location?")
+                    .position(new LatLng(11.47,-9)))
+                    .setDraggable(true);
+
         }
 
 
