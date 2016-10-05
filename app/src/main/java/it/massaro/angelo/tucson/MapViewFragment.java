@@ -26,6 +26,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -218,6 +222,19 @@ public class MapViewFragment extends Fragment {
                     .snippet("Is this the right location?")
                     .position(myPosition))
                     .setDraggable(true);
+
+            JSONObject mainObject = null;
+            try {
+                mainObject = new JSONObject( s );
+                JSONArray array = mainObject.getJSONArray("data");
+                for(int i=0; i<array.length(); i++){
+
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
 
             //TODO fare il ciclo for con tutte le posizioni ricavate nel json
             googleMap.addMarker(new MarkerOptions()
