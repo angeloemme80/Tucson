@@ -2,6 +2,7 @@ package it.massaro.angelo.tucson;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -9,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -19,6 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
@@ -26,6 +29,12 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -66,7 +75,6 @@ public class MainActivity extends AppCompatActivity
         //Carico lo SharedPreferences
         final SharedPreferences preferences = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
 
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,12 +82,12 @@ public class MainActivity extends AppCompatActivity
 
                 apriFragmentMappa();
 
-                //Rimane aperto per 5 secondi
-                Snackbar.make(view, " - ", 5000)
-                        .setAction("Invia Posizione", new View.OnClickListener() {
+                //Rimane aperto per 10 secondi
+                Snackbar.make(view, " - ", 10000)
+                        .setAction(getResources().getString(R.string.send_position), new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                Log.d("onClick Snackbar", "posizione inviata!!!");
+                                //Log.d("onClick Snackbar", "posizione inviata!!!");
                                 new HttpCalls().execute( URL_SERVIZI + preferences.getString("facebookId",""), "POST", "longitude=" + getLongitude() + "&latitude=" + getLatitude() + "&token=" + preferences.getString("accessToken","") );//EAAI42sewJxMBAPEobC1jOsSITrQztFUXwI7qOSbjPzhsJUfGqxIsY3ZBQCb3ex8dBngkupRaqZBDwfEwzDZAJfcQRvBZCPCYQrNSPSPgSSYtqFFmvhiUSzHZBbboHqTBAxwCjFSx4J2Qi5d0OMRXmjxlbZBykGgtaw3oIgQR6myZC5iF9mZCWBScUVie4rmIsqZAMpfZCf2rA2zE6uhwhcBnQN");
                             }
                         }).show();
@@ -245,8 +253,23 @@ public class MainActivity extends AppCompatActivity
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            //TODO gestire la risposta
-            Log.i("json", s);
+            String messaggioRisposta = getResources().getString(R.string.error_send_position);
+            //Log.i("json", s);
+
+            JSONObject mainObject = null;
+            try {
+                mainObject = new JSONObject( s );
+                String affectedRows = mainObject.getString("affected_rows");
+                if(affectedRows!=null && affectedRows.equals("1")){
+                    messaggioRisposta = getResources().getString(R.string.position_send);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            Toast toast = Toast.makeText(getApplicationContext(), messaggioRisposta, Toast.LENGTH_LONG);
+            toast.show();
+
         }
 
 

@@ -130,8 +130,9 @@ public class MapViewFragment extends Fragment {
                             }
                             @Override
                             public void onLocationChanged(final Location location) {
-                                LatLng nuovaPosizione = new LatLng( location.getLatitude(), location.getLongitude() );
+                                /*LatLng nuovaPosizione = new LatLng( location.getLatitude(), location.getLongitude() );
                                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(nuovaPosizione));
+                                */
                             }
                         });
                 //Fine refresh posizione
@@ -217,17 +218,28 @@ public class MapViewFragment extends Fragment {
             Log.i("json", s);
 
             googleMap.clear();
-            googleMap.addMarker(new MarkerOptions()
-                    .title("Mia posizione")
-                    .snippet("Is this the right location?")
-                    .position(myPosition))
-                    .setDraggable(true);
+            if(myPosition!=null){
+                googleMap.addMarker(new MarkerOptions()
+                        .title( getResources().getString(R.string.my_position) )
+                        .snippet( getResources().getString(R.string.current_position) )
+                        .position(myPosition))
+                        .setDraggable(true);
+            }
 
             JSONObject mainObject = null;
             try {
                 mainObject = new JSONObject( s );
                 JSONArray array = mainObject.getJSONArray("data");
                 for(int i=0; i<array.length(); i++){
+                    JSONObject objectInArray = array.getJSONObject(i);
+                    //Log.d("name:", objectInArray.getString("NAME")); Log.d("name:", objectInArray.getString("LONGITUDE"));
+                    //Imposto un marker per ogni posizione restituita nel json
+                    //Utilita.getReadableDate("2016-10-06 20:54:27");
+                    googleMap.addMarker(new MarkerOptions()
+                            .title( objectInArray.getString("NAME") )
+                            .snippet( Utilita.getReadableDate(objectInArray.getString("POSITION_DATE")) )
+                            .position(new LatLng( Double.parseDouble(objectInArray.getString("LATITUDE")), Double.parseDouble(objectInArray.getString("LONGITUDE")) )))
+                            .setDraggable(true);
 
                 }
 
@@ -236,12 +248,7 @@ public class MapViewFragment extends Fragment {
             }
 
 
-            //TODO fare il ciclo for con tutte le posizioni ricavate nel json
-            googleMap.addMarker(new MarkerOptions()
-                    .title("2222222222")
-                    .snippet("22222222Is this the right location?")
-                    .position(new LatLng(11.47,-9)))
-                    .setDraggable(true);
+
 
         }
 
@@ -331,37 +338,5 @@ public class MapViewFragment extends Fragment {
 
     }
 
-    /**
-     * Created by admwks on 27/09/2016.
-     */
-/*
-    public static class Utilita {
 
-        private static final char PARAMETER_DELIMITER = '&';
-        private static final char PARAMETER_EQUALS_CHAR = '=';
-        public static StringBuilder createQueryStringForParameters(Map<String, String> parameters) {
-            StringBuilder parametersAsQueryString = new StringBuilder();
-            if (parameters != null) {
-                boolean firstParameter = true;
-
-                for (String parameterName : parameters.keySet()) {
-                    if (!firstParameter) {
-                        parametersAsQueryString.append(PARAMETER_DELIMITER);
-                    }
-
-                    try {
-                        parametersAsQueryString.append(parameterName)
-                                .append(PARAMETER_EQUALS_CHAR)
-                                .append( URLEncoder.encode(parameters.get(parameterName),"UTF8") );
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-
-                    firstParameter = false;
-                }
-            }
-            return parametersAsQueryString;
-        }
-    }
-    */
 }

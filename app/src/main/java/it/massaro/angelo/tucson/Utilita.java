@@ -4,8 +4,17 @@ package it.massaro.angelo.tucson;
  * Created by Angelo on 27/09/2016.
  */
 
+
+
+        import android.text.format.DateFormat;
+
         import java.io.UnsupportedEncodingException;
         import java.net.URLEncoder;
+        import java.text.ParseException;
+        import java.text.SimpleDateFormat;
+
+        import java.util.Date;
+        import java.util.Locale;
         import java.util.Map;
 
 /**
@@ -38,6 +47,26 @@ public class Utilita {
             }
         }
         return parametersAsQueryString;
+    }
+
+
+    public static String getReadableDate(String yyyyMMddHHmmss)
+    {
+        yyyyMMddHHmmss = yyyyMMddHHmmss.replace("-", "");
+        yyyyMMddHHmmss = yyyyMMddHHmmss.replace(" ", "");
+        yyyyMMddHHmmss = yyyyMMddHHmmss.replace(":", "");
+        yyyyMMddHHmmss = yyyyMMddHHmmss.replace("/", "");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault());
+        String ret = "";
+        String sDate = "";
+        try {
+            Date date = formatter.parse(yyyyMMddHHmmss);
+            sDate = DateFormat.format("dd/MM/yyyy HH:mm:ss", date).toString();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return sDate;
     }
 
 }
