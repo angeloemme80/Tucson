@@ -6,13 +6,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
+import com.facebook.FacebookActivity;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
@@ -39,6 +42,8 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.Arrays;
 
+import static android.content.Context.MODE_PRIVATE;
+import static com.facebook.FacebookSdk.getApplicationContext;
 import static it.massaro.angelo.tucson.MainActivity.URL_SERVIZI;
 
 /**
@@ -58,20 +63,40 @@ public class FacebookLogin extends Fragment {
         callbackManager = CallbackManager.Factory.create();
     }
 
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         //faccio il logout da facebook prima di mostrare il bottone login, perchè potrebbe esserci qualche connessione facebook aperta precedentemente
         //LoginManager.getInstance().logOut();
         View rootView = inflater.inflate(R.layout.facebook_login, container, false);
 
+
+
+        //rendo INvisibile il FloatingActionButton che è il bottone rotondo in basso a destra che apre il menu di invio posizione
+        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        fab.setVisibility(View.INVISIBLE);
+
         LoginButton loginButton = (LoginButton) rootView.findViewById(R.id.login_button);
+
         loginButton.setReadPermissions(Arrays.asList("email", "public_profile","user_friends"));
 
         // If using in a fragment
         loginButton.setFragment(this);
         // Other app specific specialization
+
+        //Intercetta il LOGOUT di facebook, resetto lo shared preferences
+        AccessTokenTracker fbTracker = new AccessTokenTracker() {
+            @Override
+            protected void onCurrentAccessTokenChanged(AccessToken accessToken, AccessToken accessToken2) {
+                if (accessToken2 == null) {
+                    Log.d("FB", "User Logged Out.");
+                    if(getActivity()!=null){
+                        SharedPreferences.Editor editor = getActivity().getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE).edit();
+                        editor.clear().commit();
+                    }
+                }
+            }
+        };
+        //Fine Intercetta il LOGOUT di facebook
 
         // Callback registration
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
@@ -88,6 +113,10 @@ public class FacebookLogin extends Fragment {
                 editor.putString("accessToken", accessToken);
                 editor.putString("facebookId", loginResult.getAccessToken().getUserId());
                 editor.commit();
+
+                //rendo visibile il FloatingActionButton che è il bottone rotondo in basso a destra che apre il menu di invio posizione
+                FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+                fab.setVisibility(View.VISIBLE);
 
                 Bundle bundle = new Bundle();
                 bundle.putString("fields", "email, id, name, first_name, last_name, age_range, link, gender, locale, timezone, updated_time, verified");
@@ -128,6 +157,9 @@ public class FacebookLogin extends Fragment {
             public void onError(FacebookException exception) {
                 Log.d("ONERROR FACEBOOK", exception.getMessage());
             }
+
+
+
         });
 
 

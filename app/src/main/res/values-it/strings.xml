@@ -23,5 +23,6 @@
     <string name="my_position">Mia posizione</string>
     <string name="current_position">Questa è la mia attuale posizione</string>
     <string name="historical_positions">Storico posizioni</string>
+    <string name="must_logged">Attenzione, è necessario essere loggati per visualizzare le posizioni sulla mappa</string>
 
 </resources>

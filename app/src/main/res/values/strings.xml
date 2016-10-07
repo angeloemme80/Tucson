@@ -23,5 +23,6 @@
     <string name="my_position">My position</string>
     <string name="current_position">This is my current position</string>
     <string name="historical_positions">Historical positions</string>
+    <string name="must_logged">Attention, you must be logged in to view the locations on the map</string>
 
 </resources>

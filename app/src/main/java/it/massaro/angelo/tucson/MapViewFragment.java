@@ -10,11 +10,13 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -45,6 +47,7 @@ import java.net.URLEncoder;
 import java.util.Map;
 
 import static android.content.Context.MODE_PRIVATE;
+import static com.facebook.FacebookSdk.getApplicationContext;
 import static it.massaro.angelo.tucson.MainActivity.MY_PREFS_NAME;
 import static it.massaro.angelo.tucson.MainActivity.URL_SERVIZI;
 
@@ -60,6 +63,16 @@ public class MapViewFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.location_fragment, container, false);
+
+        //Carico lo SharedPreferences
+        final SharedPreferences preferences = getActivity().getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
+        //Il FloatingActionButton è il bottone rotondo in basso a destra che apre il menu di invio posizione
+        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        if(preferences.getString("facebookId","").equals("")){
+            fab.setVisibility(View.INVISIBLE);
+        } else {
+            fab.setVisibility(View.VISIBLE);
+        }
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -214,7 +227,6 @@ public class MapViewFragment extends Fragment {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            //TODO gestire la risposta
             Log.i("json", s);
 
             googleMap.clear();
@@ -229,6 +241,11 @@ public class MapViewFragment extends Fragment {
             JSONObject mainObject = null;
             try {
                 mainObject = new JSONObject( s );
+                int statusCode = mainObject.getInt("status_code");
+                if(statusCode == 1210){//Se NON è loggato con facebook
+                    ((MainActivity)getActivity()).apriFragmentFacebook();
+                }
+
                 JSONArray array = mainObject.getJSONArray("data");
                 for(int i=0; i<array.length(); i++){
                     JSONObject objectInArray = array.getJSONObject(i);
