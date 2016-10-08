@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInstaller;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -63,8 +64,8 @@ public class MainActivity extends AppCompatActivity
     private double longitude;
     private double latitude;
     public static final String URL_SERVIZI = "http://russoangela.altervista.org/TucsonREST/";
-    public static final String MY_PREFS_NAME = "MyPrefsFile";
-
+    public static final String MY_PREFS_NAME = "MyPrefsFile";//Salvo le informazioni sul login di facebook
+    public static final String MY_PREFS_SETTINGS = "MyPrefsSettings";//Salvo le informazioni del fragment delle impostazioni
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,9 +76,9 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
         //Carico lo SharedPreferences
         final SharedPreferences preferences = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
+        final SharedPreferences preferencesSettings = getSharedPreferences(MY_PREFS_SETTINGS, MODE_PRIVATE);
 
         //Il FloatingActionButton è il bottone rotondo in basso a destra che apre il menu di invio posizione
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);

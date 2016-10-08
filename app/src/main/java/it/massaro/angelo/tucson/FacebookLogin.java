@@ -44,6 +44,7 @@ import java.util.Arrays;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.facebook.FacebookSdk.getApplicationContext;
+import static it.massaro.angelo.tucson.MainActivity.MY_PREFS_NAME;
 import static it.massaro.angelo.tucson.MainActivity.URL_SERVIZI;
 
 /**
@@ -53,7 +54,7 @@ public class FacebookLogin extends Fragment {
 
 
     CallbackManager callbackManager;
-    public static final String MY_PREFS_NAME = "MyPrefsFile";
+    //public static final String MY_PREFS_NAME = "MyPrefsFile";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

@@ -1,5 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent" android:layout_height="match_parent">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:weightSum="1">
+
+
+            <TextView
+                android:text="@string/allow_view_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView4"
+                android:gravity="center_vertical|center_horizontal"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:paddingTop="10dp"
+                android:typeface="monospace" />
+
+            <Switch
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/switch_allow"
+                android:gravity="center"
+                android:splitTrack="false"
+                android:switchTextAppearance="@style/TextAppearance.AppCompat"
+                android:paddingTop="10dp"
+                android:switchMinWidth="70dp"
+                android:checked="false"
+                android:elevation="0dp"
+                android:layout_weight="1.40"
+                android:paddingBottom="10dp"
+                tools:text=""
+                android:textSize="14sp"
+                android:textAlignment="viewEnd" />
+
+            <TextView
+                android:text="@string/max_historical_positions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvMaxPositions"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:lineSpacingExtra="2sp"
+                android:paddingTop="40dp"
+                android:gravity="center_vertical|center_horizontal"
+                android:typeface="monospace" />
+
+            <TextView
+                android:text="TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:id="@+id/tvSize"
+                android:paddingTop="10dp"
+                android:gravity="center_vertical|center_horizontal"
+                android:typeface="monospace" />
+
+            <SeekBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/seekBar"
+                android:paddingTop="20dp"
+                android:max="999"
+                android:progress="999"
+                android:elevation="@dimen/com_facebook_profilepictureview_preset_size_large"
+                />
+
+        </LinearLayout>
+
+
+    </ScrollView>
 </RelativeLayout>

@@ -25,6 +25,7 @@
     <string name="historical_positions">Historical positions</string>
     <string name="must_logged">Attention, you must be logged in to view the locations on the map</string>
     <string name="info_text"><b>Tucson</b> is an app that is based on the geolocation of your Hyundai Tucson.\n\n<i>Available functions</i>:\n<b>Facebook Login</b>: Login with your facebook account.\n<b>Map</b>: It allows you to display on all Hyundai Tucson area who have sent their position through the App. Show only the last position sent by each user.\n<b>Historical positions</b>: It allows you to view the area all the positions that you have sent so far. Displays only the position sent to you.\n<b>Settings</b>: It lets you choose some settings such as the maximum number of positions to be displayed in the historic or whether or not to send even the email address associated with your Facebook account\n<b>Info</b>: About of application functionality.</string>
-
+    <string name="allow_view_email">Send your associated email address to facebook account when you send your location</string>
+    <string name="max_historical_positions">Maximum number of visible positions in the feature "Historical positions"</string>
 
 </resources>
