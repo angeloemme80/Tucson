@@ -191,7 +191,7 @@ public class FacebookLogin extends Fragment {
             super.onPostExecute(s);
             //TODO gestire la risposta
             Log.i("json", s);
-            ((MainActivity)getActivity()).apriFragmentMappa();
+            ((MainActivity)getActivity()).apriFragmentMappa("mappa");
         }
 
 

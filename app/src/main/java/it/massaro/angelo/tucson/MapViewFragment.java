@@ -16,16 +16,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
@@ -38,16 +35,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.util.Map;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.facebook.FacebookSdk.getApplicationContext;
 import static it.massaro.angelo.tucson.MainActivity.MY_PREFS_NAME;
 import static it.massaro.angelo.tucson.MainActivity.URL_SERVIZI;
 
@@ -59,10 +52,17 @@ public class MapViewFragment extends Fragment {
     MapView mMapView;
     private GoogleMap googleMap;
     private LatLng myPosition = null;
+    private String menuClick = "";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.location_fragment, container, false);
+
+        //Recupero dal bundle il parametro menuClick per capire quale servizio lanciare, se quello che visualizza le posizioni di tutti o quello che visualizza lo storico delle mie posizioni
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            setMenuClick(bundle.getString("menuClick", "mappa"));
+        }
 
         //Carico lo SharedPreferences
         final SharedPreferences preferences = getActivity().getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
@@ -170,7 +170,13 @@ public class MapViewFragment extends Fragment {
                 final SharedPreferences preferences = getActivity().getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
                 //AsyncTask<String, Void, String> execute = new HttpCalls().execute(URL_SERVIZI + "?id=" + preferences.getString("facebookId","") + "&token=" + preferences.getString("accessToken", ""), "GET", null);
                 HttpCalls httpCalls = new HttpCalls(googleMap, myPosition);
-                httpCalls.execute(URL_SERVIZI + "?id=" + preferences.getString("facebookId","") + "&token=" + preferences.getString("accessToken", ""), "GET", null);
+                if (getMenuClick().equals("mappa")){
+                    httpCalls.execute(URL_SERVIZI + "?id=" + preferences.getString("facebookId","") + "&token=" + preferences.getString("accessToken", ""), "GET", null);
+                }else{
+                    httpCalls.execute(URL_SERVIZI + preferences.getString("facebookId","") + "?token=" + preferences.getString("accessToken", ""), "GET", null);
+                }
+
+
 
             }
 
@@ -204,6 +210,14 @@ public class MapViewFragment extends Fragment {
     public void onLowMemory() {
         super.onLowMemory();
         mMapView.onLowMemory();
+    }
+
+    public String getMenuClick() {
+        return menuClick;
+    }
+
+    public void setMenuClick(String menuClick) {
+        this.menuClick = menuClick;
     }
 
 
@@ -252,8 +266,12 @@ public class MapViewFragment extends Fragment {
                     //Log.d("name:", objectInArray.getString("NAME")); Log.d("name:", objectInArray.getString("LONGITUDE"));
                     //Imposto un marker per ogni posizione restituita nel json
                     //Utilita.getReadableDate("2016-10-06 20:54:27");
+                    String title = "-";
+                    if(objectInArray.has("NAME")){
+                        title = objectInArray.getString("NAME");
+                    }
                     googleMap.addMarker(new MarkerOptions()
-                            .title( objectInArray.getString("NAME") )
+                            .title( title )
                             .snippet( Utilita.getReadableDate(objectInArray.getString("POSITION_DATE")) )
                             .position(new LatLng( Double.parseDouble(objectInArray.getString("LATITUDE")), Double.parseDouble(objectInArray.getString("LONGITUDE")) )))
                             .setDraggable(true);

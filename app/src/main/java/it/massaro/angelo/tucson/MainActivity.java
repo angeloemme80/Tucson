@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
 
-                apriFragmentMappa();
+                apriFragmentMappa("mappa");
 
                 //Rimane aperto per 10 secondi
                 Snackbar.make(view, " - ", 10000)
@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         //Parte il fragment con la mappa "MapViewFragment"
-        apriFragmentMappa();
+        apriFragmentMappa("mappa");
         //
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -162,17 +162,14 @@ public class MainActivity extends AppCompatActivity
             apriFragmentFacebook();
         } else if (id == R.id.nav_map) {
             //Parte il fragment con la mappa "MapViewFragment"
-            apriFragmentMappa();
+            apriFragmentMappa("mappa");
+        } else if (id == R.id.nav_all_map_positions) {
+            apriFragmentMappa("storico_posizioni");
+        } else if (id == R.id.nav_settings) {
+
         } else if (id == R.id.nav_info) {
 
         }
-        /*else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -215,8 +212,12 @@ public class MainActivity extends AppCompatActivity
         client.disconnect();
     }
 
-    public void apriFragmentMappa(){
+    public void apriFragmentMappa(String menuClick){
         Fragment fragment = Fragment.instantiate(getApplicationContext(), MapViewFragment.class.getName());
+        //passo il parametro menuClick che contiene la stringa relativa al menu dove lutente ha clikkato
+        Bundle bundle = new Bundle();
+        bundle.putString("menuClick", menuClick);
+        fragment.setArguments(bundle);
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.content_main, fragment);
         ft.commit();
