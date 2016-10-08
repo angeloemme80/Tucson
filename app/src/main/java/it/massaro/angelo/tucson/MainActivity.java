@@ -76,7 +76,6 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
 
-
         //Carico lo SharedPreferences
         final SharedPreferences preferences = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
 
@@ -166,9 +165,9 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_all_map_positions) {
             apriFragmentMappa("storico_posizioni");
         } else if (id == R.id.nav_settings) {
-
+            apriFragmentImpostazioni();
         } else if (id == R.id.nav_info) {
-
+            apriFragmentInfo();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -225,6 +224,20 @@ public class MainActivity extends AppCompatActivity
 
     public void apriFragmentFacebook(){
         Fragment fragment = Fragment.instantiate(this, FacebookLogin.class.getName());
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.replace(R.id.content_main, fragment);
+        ft.commit();
+    }
+
+    public void apriFragmentImpostazioni(){
+        Fragment fragment = Fragment.instantiate(this, ImpostazioniFragment.class.getName());
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.replace(R.id.content_main, fragment);
+        ft.commit();
+    }
+
+    public void apriFragmentInfo(){
+        Fragment fragment = Fragment.instantiate(this, InfoFragment.class.getName());
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.content_main, fragment);
         ft.commit();

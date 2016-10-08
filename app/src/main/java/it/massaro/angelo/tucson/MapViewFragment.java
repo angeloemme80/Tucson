@@ -63,6 +63,12 @@ public class MapViewFragment extends Fragment {
         if (bundle != null) {
             setMenuClick(bundle.getString("menuClick", "mappa"));
         }
+        //Cambio il titolo
+        if (getMenuClick().equals("mappa")){
+            getActivity().setTitle(getResources().getString(R.string.mappa) + " " + getResources().getString(R.string.app_name));
+        }else if (getMenuClick().equals("storico_posizioni")){
+            getActivity().setTitle(getResources().getString(R.string.historical_positions));
+        }
 
         //Carico lo SharedPreferences
         final SharedPreferences preferences = getActivity().getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
@@ -172,7 +178,7 @@ public class MapViewFragment extends Fragment {
                 HttpCalls httpCalls = new HttpCalls(googleMap, myPosition);
                 if (getMenuClick().equals("mappa")){
                     httpCalls.execute(URL_SERVIZI + "?id=" + preferences.getString("facebookId","") + "&token=" + preferences.getString("accessToken", ""), "GET", null);
-                }else{
+                }else if (getMenuClick().equals("storico_posizioni")){
                     httpCalls.execute(URL_SERVIZI + preferences.getString("facebookId","") + "?token=" + preferences.getString("accessToken", ""), "GET", null);
                 }
 

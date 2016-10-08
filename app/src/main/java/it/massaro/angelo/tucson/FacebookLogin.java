@@ -68,9 +68,7 @@ public class FacebookLogin extends Fragment {
         //faccio il logout da facebook prima di mostrare il bottone login, perchè potrebbe esserci qualche connessione facebook aperta precedentemente
         //LoginManager.getInstance().logOut();
         View rootView = inflater.inflate(R.layout.facebook_login, container, false);
-
-
-
+        getActivity().setTitle(getResources().getString(R.string.login));
         //rendo INvisibile il FloatingActionButton che è il bottone rotondo in basso a destra che apre il menu di invio posizione
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
         fab.setVisibility(View.INVISIBLE);

@@ -9,12 +9,11 @@
     <com.facebook.login.widget.LoginButton
         android:id="@+id/login_button"
         android:layout_width="264dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:layout_centerInParent="true"
         android:layout_marginTop="30dp"
         android:layout_marginBottom="30dp"
-        android:layout_weight="0.09"
-        android:elevation="2dp"
-        android:layout_gravity="center_vertical|center_horizontal"
-        android:layout_centerInParent="true"/>
+        android:layout_weight="0.09" />
 
 </RelativeLayout>
