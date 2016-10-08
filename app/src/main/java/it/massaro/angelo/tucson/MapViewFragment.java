@@ -22,6 +22,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -279,9 +280,11 @@ public class MapViewFragment extends Fragment {
                     googleMap.addMarker(new MarkerOptions()
                             .title( title )
                             .snippet( Utilita.getReadableDate(objectInArray.getString("POSITION_DATE")) )
-                            .position(new LatLng( Double.parseDouble(objectInArray.getString("LATITUDE")), Double.parseDouble(objectInArray.getString("LONGITUDE")) )))
-                            .setDraggable(true);
-
+                            .position(new LatLng( Double.parseDouble(objectInArray.getString("LATITUDE")), Double.parseDouble(objectInArray.getString("LONGITUDE")) ))
+                            //.icon(BitmapDescriptorFactory.fromResource(R.drawable.mymarker))
+                            )
+                            .setDraggable(true)
+                            ;
                 }
 
             } catch (JSONException e) {
