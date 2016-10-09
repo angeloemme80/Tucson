@@ -46,6 +46,7 @@ import it.massaro.angelo.tucson.map.OwnIconRendered;
 import static android.content.Context.MODE_PRIVATE;
 import static com.facebook.FacebookSdk.getApplicationContext;
 import static it.massaro.angelo.tucson.MainActivity.MY_PREFS_NAME;
+import static it.massaro.angelo.tucson.MainActivity.MY_PREFS_SETTINGS;
 import static it.massaro.angelo.tucson.MainActivity.URL_SERVIZI;
 
 /**
@@ -191,12 +192,13 @@ public class MapViewFragment extends Fragment {
 
                 //Carico lo SharedPreferences
                 final SharedPreferences preferences = getActivity().getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
+                final SharedPreferences preferencesImpostazioni = getActivity().getSharedPreferences(MY_PREFS_SETTINGS, MODE_PRIVATE);
                 //AsyncTask<String, Void, String> execute = new HttpCalls().execute(URL_SERVIZI + "?id=" + preferences.getString("facebookId","") + "&token=" + preferences.getString("accessToken", ""), "GET", null);
                 HttpCalls httpCalls = new HttpCalls(googleMap, myPosition);
                 if (getMenuClick().equals("mappa")){
                     httpCalls.execute(URL_SERVIZI + "?id=" + preferences.getString("facebookId","") + "&token=" + preferences.getString("accessToken", ""), "GET", null);
                 }else if (getMenuClick().equals("storico_posizioni")){
-                    httpCalls.execute(URL_SERVIZI + preferences.getString("facebookId","") + "?token=" + preferences.getString("accessToken", ""), "GET", null);
+                    httpCalls.execute(URL_SERVIZI + preferences.getString("facebookId","") + "?token=" + preferences.getString("accessToken", "") + "&limite=" + preferencesImpostazioni.getInt("seekBarValue",999), "GET", null);
                 }
 
 

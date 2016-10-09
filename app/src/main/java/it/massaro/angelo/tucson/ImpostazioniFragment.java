@@ -14,6 +14,7 @@ import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import static android.content.Context.MODE_PRIVATE;
 import static it.massaro.angelo.tucson.MainActivity.MY_PREFS_SETTINGS;
 
 /**
@@ -30,6 +31,8 @@ public class ImpostazioniFragment extends Fragment {
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
         fab.setVisibility(View.INVISIBLE);
 
+        SharedPreferences preferencesImpostazioni = getActivity().getSharedPreferences(MY_PREFS_SETTINGS, MODE_PRIVATE);
+
         //Font personalizzato
         //Typeface typeFace = Typeface.createFromAsset(getActivity().getAssets(),"Dosis-Bold.ttf");
         //TextView tvMaxPositions = (TextView) rootView.findViewById(R.id.tvMaxPositions);
@@ -37,6 +40,7 @@ public class ImpostazioniFragment extends Fragment {
 
         //Swith
         Switch switch_allow = (Switch) rootView.findViewById(R.id.switch_allow);
+        switch_allow.setChecked( preferencesImpostazioni.getBoolean("switch_allow",false) );
         switch_allow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -49,6 +53,7 @@ public class ImpostazioniFragment extends Fragment {
         //SeekBar
         SeekBar seekBar = (SeekBar) rootView.findViewById(R.id.seekBar);
         final TextView tvSize = (TextView) rootView.findViewById(R.id.tvSize);
+        seekBar.setProgress( preferencesImpostazioni.getInt("seekBarValue",999) );
         //tvSize.setTypeface(typeFace);
         tvSize.setText(String.valueOf(seekBar.getProgress()));
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
