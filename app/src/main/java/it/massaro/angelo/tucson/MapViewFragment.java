@@ -22,9 +22,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.ClusterManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,7 +40,11 @@ import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 
+import it.massaro.angelo.tucson.map.MyItem;
+import it.massaro.angelo.tucson.map.OwnIconRendered;
+
 import static android.content.Context.MODE_PRIVATE;
+import static com.facebook.FacebookSdk.getApplicationContext;
 import static it.massaro.angelo.tucson.MainActivity.MY_PREFS_NAME;
 import static it.massaro.angelo.tucson.MainActivity.URL_SERVIZI;
 
@@ -54,6 +57,8 @@ public class MapViewFragment extends Fragment {
     private GoogleMap googleMap;
     private LatLng myPosition = null;
     private String menuClick = "";
+    // Declare a variable for the cluster manager.
+    private ClusterManager<MyItem> mClusterManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -157,6 +162,8 @@ public class MapViewFragment extends Fragment {
                         });
                 //Fine refresh posizione
 
+
+
                 Location location = locationManager.getLastKnownLocation(provider);
                 myPosition = null;
                 if (location != null) {
@@ -168,6 +175,15 @@ public class MapViewFragment extends Fragment {
                     //googleMap.addMarker(new MarkerOptions().position(myPosition).title("myPosition"));
                     googleMap.moveCamera(CameraUpdateFactory.newLatLng(myPosition));
                 }
+
+                // Initialize the manager with the context and the map.
+                // (Activity extends context, so we can pass 'this' in the constructor.)
+                mClusterManager = new ClusterManager<MyItem>(getActivity().getApplicationContext(), googleMap);
+                // Point the map's listeners at the listeners implemented by the cluster
+                // manager.
+                googleMap.setOnCameraIdleListener(mClusterManager);
+                googleMap.setOnMarkerClickListener(mClusterManager);
+
 
                 //googleMap.animateCamera(CameraUpdateFactory.zoomIn());
                 // Zoom out to zoom level 10, animating with a duration of 2 seconds.
@@ -252,11 +268,20 @@ public class MapViewFragment extends Fragment {
 
             googleMap.clear();
             if(myPosition!=null){
+                /*
                 googleMap.addMarker(new MarkerOptions()
                         .title( getResources().getString(R.string.my_position) )
                         .snippet( getResources().getString(R.string.current_position) )
                         .position(myPosition))
                         .setDraggable(true);
+                */
+                MyItem offsetItem = new MyItem(myPosition.latitude,
+                        myPosition.longitude,
+                        getResources().getString(R.string.my_position),
+                        getResources().getString(R.string.current_position),
+                        null);
+                mClusterManager.addItem(offsetItem);
+                mClusterManager.setRenderer(new OwnIconRendered(getActivity().getApplicationContext(), googleMap, mClusterManager));
             }
 
             JSONObject mainObject = null;
@@ -277,6 +302,7 @@ public class MapViewFragment extends Fragment {
                     if(objectInArray.has("NAME")){
                         title = objectInArray.getString("NAME");
                     }
+                    /*
                     googleMap.addMarker(new MarkerOptions()
                             .title( title )
                             .snippet( Utilita.getReadableDate(objectInArray.getString("POSITION_DATE")) )
@@ -285,6 +311,14 @@ public class MapViewFragment extends Fragment {
                             )
                             .setDraggable(true)
                             ;
+                    */
+                    MyItem offsetItem = new MyItem( Double.parseDouble(objectInArray.getString("LATITUDE")),
+                            Double.parseDouble(objectInArray.getString("LONGITUDE")),
+                            title,
+                            Utilita.getReadableDate(objectInArray.getString("POSITION_DATE")),
+                            null);
+                    mClusterManager.addItem(offsetItem);
+                    mClusterManager.setRenderer(new OwnIconRendered(getActivity().getApplicationContext(), googleMap, mClusterManager));
                 }
 
             } catch (JSONException e) {
