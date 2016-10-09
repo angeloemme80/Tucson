@@ -1,7 +1,12 @@
 package it.massaro.angelo.tucson;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.FragmentManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
@@ -10,6 +15,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
@@ -65,6 +71,37 @@ public class MapViewFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.location_fragment, container, false);
+
+        //INIZIO Controllo se ha il gps e chiedo all'utente di attivarlo
+        PackageManager pm = getActivity().getPackageManager();
+        boolean hasGps = pm.hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS);
+        LocationManager manager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
+        if(!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            //Ask the user to enable GPS
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle( getResources().getString(R.string.gps_activation) );
+            builder.setMessage( getResources().getString(R.string.enable_gps) );
+            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //Launch settings, allowing user to make a change
+                    Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(i);
+                }
+            });
+            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //No location service, no Activity
+                    return;
+                }
+            });
+            builder.create().show();
+        }
+        //FINE Controllo se ha il gps e chiedo all'utente di attivarlo
+
+
+
 
         //Recupero dal bundle il parametro menuClick per capire quale servizio lanciare, se quello che visualizza le posizioni di tutti o quello che visualizza lo storico delle mie posizioni
         Bundle bundle = this.getArguments();

@@ -28,5 +28,7 @@
     <string name="allow_view_email">Send your associated email address to facebook account when you send your location</string>
     <string name="max_historical_positions">Maximum number of visible positions in the feature "Historical positions"</string>
     <string name="no_internet">No internet connection</string>
+    <string name="gps_activation">GPS activation</string>
+    <string name="enable_gps">Would you like to enable GPS?</string>
 
 </resources>

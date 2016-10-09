@@ -28,5 +28,7 @@
     <string name="allow_view_email">Invia anche il tuo indirizzo mail associato all\'account facebook quando invii la tua posizione</string>
     <string name="max_historical_positions">Numero massimo di posizioni visibili nella funzionalità "Storico posizioni"</string>
     <string name="no_internet">Nessuna connessione internet</string>
+    <string name="gps_activation">Attivazione GPS</string>
+    <string name="enable_gps">Vuoi attivare il GPS?</string>
 
 </resources>
