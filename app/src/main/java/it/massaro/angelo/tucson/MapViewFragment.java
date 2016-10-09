@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -195,10 +196,16 @@ public class MapViewFragment extends Fragment {
                 final SharedPreferences preferencesImpostazioni = getActivity().getSharedPreferences(MY_PREFS_SETTINGS, MODE_PRIVATE);
                 //AsyncTask<String, Void, String> execute = new HttpCalls().execute(URL_SERVIZI + "?id=" + preferences.getString("facebookId","") + "&token=" + preferences.getString("accessToken", ""), "GET", null);
                 HttpCalls httpCalls = new HttpCalls(googleMap, myPosition);
-                if (getMenuClick().equals("mappa")){
+
+                boolean connessione = ((MainActivity)getActivity()).isNetworkAvailable();
+
+                if (getMenuClick().equals("mappa") && connessione){
                     httpCalls.execute(URL_SERVIZI + "?id=" + preferences.getString("facebookId","") + "&token=" + preferences.getString("accessToken", ""), "GET", null);
-                }else if (getMenuClick().equals("storico_posizioni")){
+                } else if (getMenuClick().equals("storico_posizioni") && connessione){
                     httpCalls.execute(URL_SERVIZI + preferences.getString("facebookId","") + "?token=" + preferences.getString("accessToken", "") + "&limite=" + preferencesImpostazioni.getInt("seekBarValue",999), "GET", null);
+                } else if (connessione==false){
+                    Toast toast = Toast.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.no_internet), Toast.LENGTH_LONG);
+                    toast.show();
                 }
 
 

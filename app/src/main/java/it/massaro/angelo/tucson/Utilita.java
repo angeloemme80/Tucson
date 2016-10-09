@@ -6,6 +6,9 @@ package it.massaro.angelo.tucson;
 
 
 
+        import android.content.Context;
+        import android.net.ConnectivityManager;
+        import android.net.NetworkInfo;
         import android.text.format.DateFormat;
 
         import java.io.UnsupportedEncodingException;
@@ -68,5 +71,8 @@ public class Utilita {
 
         return sDate;
     }
+
+
+
 
 }

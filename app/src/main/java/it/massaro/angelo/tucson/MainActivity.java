@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInstaller;
 import android.graphics.Typeface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -70,7 +72,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //FacebookSdk.sdkInitialize(getApplicationContext());
         //AppEventsLogger.activateApp(this);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -78,7 +79,6 @@ public class MainActivity extends AppCompatActivity
 
         //Carico lo SharedPreferences
         final SharedPreferences preferences = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
-        final SharedPreferences preferencesSettings = getSharedPreferences(MY_PREFS_SETTINGS, MODE_PRIVATE);
 
         //Il FloatingActionButton è il bottone rotondo in basso a destra che apre il menu di invio posizione
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -93,8 +93,12 @@ public class MainActivity extends AppCompatActivity
                         .setAction(getResources().getString(R.string.send_position), new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                //Log.d("onClick Snackbar", "posizione inviata!!!");
-                                new HttpCalls().execute( URL_SERVIZI + preferences.getString("facebookId",""), "POST", "longitude=" + getLongitude() + "&latitude=" + getLatitude() + "&token=" + preferences.getString("accessToken","") );//EAAI42sewJxMBAPEobC1jOsSITrQztFUXwI7qOSbjPzhsJUfGqxIsY3ZBQCb3ex8dBngkupRaqZBDwfEwzDZAJfcQRvBZCPCYQrNSPSPgSSYtqFFmvhiUSzHZBbboHqTBAxwCjFSx4J2Qi5d0OMRXmjxlbZBykGgtaw3oIgQR6myZC5iF9mZCWBScUVie4rmIsqZAMpfZCf2rA2zE6uhwhcBnQN");
+                                if(isNetworkAvailable()){
+                                    new HttpCalls().execute( URL_SERVIZI + preferences.getString("facebookId",""), "POST", "longitude=" + getLongitude() + "&latitude=" + getLatitude() + "&token=" + preferences.getString("accessToken","") );//EAAI42sewJxMBAPEobC1jOsSITrQztFUXwI7qOSbjPzhsJUfGqxIsY3ZBQCb3ex8dBngkupRaqZBDwfEwzDZAJfcQRvBZCPCYQrNSPSPgSSYtqFFmvhiUSzHZBbboHqTBAxwCjFSx4J2Qi5d0OMRXmjxlbZBykGgtaw3oIgQR6myZC5iF9mZCWBScUVie4rmIsqZAMpfZCf2rA2zE6uhwhcBnQN");
+                                } else {
+                                    Toast toast = Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_internet), Toast.LENGTH_LONG);
+                                    toast.show();
+                                }
                             }
                         }).show();
             }
@@ -378,6 +382,13 @@ public class MainActivity extends AppCompatActivity
         }
 
 
+    }
+
+
+    public boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
 
