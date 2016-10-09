@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity
 
         //Carico lo SharedPreferences
         final SharedPreferences preferences = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
+        final SharedPreferences preferencesImpostazioni = getSharedPreferences(MY_PREFS_SETTINGS, MODE_PRIVATE);
 
         //Il FloatingActionButton è il bottone rotondo in basso a destra che apre il menu di invio posizione
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -94,7 +95,7 @@ public class MainActivity extends AppCompatActivity
                             @Override
                             public void onClick(View v) {
                                 if(isNetworkAvailable()){
-                                    new HttpCalls().execute( URL_SERVIZI + preferences.getString("facebookId",""), "POST", "longitude=" + getLongitude() + "&latitude=" + getLatitude() + "&token=" + preferences.getString("accessToken","") );//EAAI42sewJxMBAPEobC1jOsSITrQztFUXwI7qOSbjPzhsJUfGqxIsY3ZBQCb3ex8dBngkupRaqZBDwfEwzDZAJfcQRvBZCPCYQrNSPSPgSSYtqFFmvhiUSzHZBbboHqTBAxwCjFSx4J2Qi5d0OMRXmjxlbZBykGgtaw3oIgQR6myZC5iF9mZCWBScUVie4rmIsqZAMpfZCf2rA2zE6uhwhcBnQN");
+                                    new HttpCalls().execute( URL_SERVIZI + preferences.getString("facebookId",""), "POST", "longitude=" + getLongitude() + "&latitude=" + getLatitude() + "&token=" + preferences.getString("accessToken","") + "&visualizza_mail=" + preferencesImpostazioni.getBoolean("switch_allow",false) );//EAAI42sewJxMBAPEobC1jOsSITrQztFUXwI7qOSbjPzhsJUfGqxIsY3ZBQCb3ex8dBngkupRaqZBDwfEwzDZAJfcQRvBZCPCYQrNSPSPgSSYtqFFmvhiUSzHZBbboHqTBAxwCjFSx4J2Qi5d0OMRXmjxlbZBykGgtaw3oIgQR6myZC5iF9mZCWBScUVie4rmIsqZAMpfZCf2rA2zE6uhwhcBnQN");
                                 } else {
                                     Toast toast = Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_internet), Toast.LENGTH_LONG);
                                     toast.show();
