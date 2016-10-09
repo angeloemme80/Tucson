@@ -169,9 +169,9 @@ public class MapViewFragment extends Fragment {
                     googleMap.moveCamera(CameraUpdateFactory.newLatLng(myPosition));
                 }
 
-                googleMap.animateCamera(CameraUpdateFactory.zoomIn());
+                //googleMap.animateCamera(CameraUpdateFactory.zoomIn());
                 // Zoom out to zoom level 10, animating with a duration of 2 seconds.
-                googleMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
+                googleMap.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
 
                 //Carico lo SharedPreferences
                 final SharedPreferences preferences = getActivity().getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);

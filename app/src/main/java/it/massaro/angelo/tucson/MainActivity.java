@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity
                 apriFragmentMappa("mappa");
 
                 //Rimane aperto per 10 secondi
-                Snackbar.make(view, " - ", 10000)
+                Snackbar.make(view, "", 10000)
                         .setAction(getResources().getString(R.string.send_position), new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
