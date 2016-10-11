@@ -29,6 +29,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterManager;
 
@@ -325,7 +326,7 @@ public class MapViewFragment extends Fragment {
                         myPosition.longitude,
                         getResources().getString(R.string.my_position),
                         getResources().getString(R.string.current_position),
-                        null);
+                        BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
                 mClusterManager.addItem(offsetItem);
                 mClusterManager.setRenderer(new OwnIconRendered(getActivity().getApplicationContext(), googleMap, mClusterManager));
             }
@@ -344,9 +345,13 @@ public class MapViewFragment extends Fragment {
                     //Log.d("name:", objectInArray.getString("NAME")); Log.d("name:", objectInArray.getString("LONGITUDE"));
                     //Imposto un marker per ogni posizione restituita nel json
                     //Utilita.getReadableDate("2016-10-06 20:54:27");
-                    String title = "-";
-                    if(objectInArray.has("NAME")){
+                    String title = getResources().getString(R.string.sent_on);
+                    if(objectInArray.has("NAME")){//Se ha il nome nel json allora è il servizio getPositions quindi metto il nome come titolo
                         title = objectInArray.getString("NAME");
+                    }
+                    final SharedPreferences preferencesImpostazioni = getActivity().getSharedPreferences(MY_PREFS_SETTINGS, MODE_PRIVATE);
+                    if( objectInArray.has("EMAIL") && objectInArray.has("VISUALIZZA_MAIL") && objectInArray.getString("VISUALIZZA_MAIL").equals("1") ){//Se ha EMAIL nel json e l'utente aveva consentito la visualizzazione allora è il servizio getPositions quindi aggiungo EMAIL al titolo
+                        title += " - " + objectInArray.getString("EMAIL");
                     }
                     /*
                     googleMap.addMarker(new MarkerOptions()
@@ -362,7 +367,7 @@ public class MapViewFragment extends Fragment {
                             Double.parseDouble(objectInArray.getString("LONGITUDE")),
                             title,
                             Utilita.getReadableDate(objectInArray.getString("POSITION_DATE")),
-                            null);
+                            BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
                     mClusterManager.addItem(offsetItem);
                     mClusterManager.setRenderer(new OwnIconRendered(getActivity().getApplicationContext(), googleMap, mClusterManager));
                 }

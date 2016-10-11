@@ -38,7 +38,7 @@ public class ImpostazioniFragment extends Fragment {
         //TextView tvMaxPositions = (TextView) rootView.findViewById(R.id.tvMaxPositions);
         //tvMaxPositions.setTypeface(typeFace);
 
-        //Swith
+        //Switch
         Switch switch_allow = (Switch) rootView.findViewById(R.id.switch_allow);
         switch_allow.setChecked( preferencesImpostazioni.getBoolean("switch_allow",false) );
         switch_allow.setOnClickListener(new View.OnClickListener() {
