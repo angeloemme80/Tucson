@@ -146,7 +146,7 @@ public class MapViewFragment extends Fragment {
 
             @Override
             public void onMapReady(GoogleMap mMap) {
-                Log.d("onMapReady", "MAPPA prontaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+                Log.d("onMapReady", "MAPPA pronta");
                 googleMap = mMap;
 
                 // Mostra il bottone my location
@@ -214,6 +214,10 @@ public class MapViewFragment extends Fragment {
                     myPosition = new LatLng(location.getLatitude(), location.getLongitude());//POSIZIONE CORRENTE
                     //googleMap.addMarker(new MarkerOptions().position(myPosition).title("myPosition"));
                     googleMap.moveCamera(CameraUpdateFactory.newLatLng(myPosition));
+                    googleMap.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
+                } else {//se il gps non riesce ad ottenere la posizione apro la mappa su ROMA con zoom sull'Italia
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLng( new LatLng(41.900780, 12.483198) ));
+                    googleMap.animateCamera(CameraUpdateFactory.zoomTo(5), 2000, null);
                 }
 
                 // Initialize the manager with the context and the map.
@@ -227,7 +231,7 @@ public class MapViewFragment extends Fragment {
 
                 //googleMap.animateCamera(CameraUpdateFactory.zoomIn());
                 // Zoom out to zoom level 10, animating with a duration of 2 seconds.
-                googleMap.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
+                //googleMap.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
 
                 //Carico lo SharedPreferences
                 final SharedPreferences preferences = getActivity().getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);

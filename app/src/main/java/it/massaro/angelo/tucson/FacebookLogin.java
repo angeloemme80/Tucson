@@ -118,7 +118,7 @@ public class FacebookLogin extends Fragment {
                 fab.setVisibility(View.VISIBLE);
 
                 Bundle bundle = new Bundle();
-                bundle.putString("fields", "email, id, name, first_name, last_name, age_range, link, gender, locale, timezone, updated_time, verified");
+                bundle.putString("fields", "email, id, name, first_name, last_name, age_range, link, gender, locale, picture, timezone, updated_time, verified");
 
                 new GraphRequest(
                         AccessToken.getCurrentAccessToken(),
@@ -129,12 +129,14 @@ public class FacebookLogin extends Fragment {
                             public void onCompleted(GraphResponse response) {
                                 //Prendo i valori che mi ritornano da facebook
                                 JSONObject me = response.getJSONObject();
-                                String email = me.optString("email");
                                 String id = me.optString("id");
+                                String email = me.optString("email");
                                 String name = me.optString("name");
+                                String picture = me.optString("picture");
+                                String link = me.optString("link");
 
                                 //chiamo il servizio per la verifica del login di facebook e relativo invio della posizione
-                                new HttpCalls().execute( URL_SERVIZI + id, "POST", "longitude=" + ((MainActivity)getActivity()).getLongitude() + "&latitude=" + ((MainActivity)getActivity()).getLatitude() + "&token=" + AccessToken.getCurrentAccessToken().getToken() );//EAAI42sewJxMBAPEobC1jOsSITrQztFUXwI7qOSbjPzhsJUfGqxIsY3ZBQCb3ex8dBngkupRaqZBDwfEwzDZAJfcQRvBZCPCYQrNSPSPgSSYtqFFmvhiUSzHZBbboHqTBAxwCjFSx4J2Qi5d0OMRXmjxlbZBykGgtaw3oIgQR6myZC5iF9mZCWBScUVie4rmIsqZAMpfZCf2rA2zE6uhwhcBnQN");
+                                new HttpCalls().execute( URL_SERVIZI + id, "POST", "longitude=" + ((MainActivity)getActivity()).getLongitude() + "&latitude=" + ((MainActivity)getActivity()).getLatitude() + "&token=" + AccessToken.getCurrentAccessToken().getToken() );
                                 /*
                                 progressDialog = ProgressDialog.show(FacebookLoginFragment.this.getContext(), "", getResources().getString(R.string.progress_dialog_message));
                                 */
