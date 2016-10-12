@@ -18,6 +18,7 @@
 
 
     <string name="send_position">Invia Posizione</string>
+    <string name="del_position">Cancella Posizione</string>
     <string name="error_send_position">Errore durante l\'invio della posizione</string>
     <string name="position_send">Posizione inviata</string>
     <string name="my_position">Mia posizione</string>

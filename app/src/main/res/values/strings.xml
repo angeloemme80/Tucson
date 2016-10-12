@@ -18,6 +18,7 @@
 
 
     <string name="send_position">Send Location</string>
+    <string name="del_position">Delete Location</string>
     <string name="error_send_position">Error during the location send</string>
     <string name="position_send">Location sent</string>
     <string name="my_position">My position</string>

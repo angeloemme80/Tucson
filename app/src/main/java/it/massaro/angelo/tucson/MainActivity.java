@@ -105,6 +105,29 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        //Il fabDel è il bottone rotondo in basso a sinistra che apre il menu di cancella posizione
+        FloatingActionButton fabDel = (FloatingActionButton) findViewById(R.id.fabDel);
+        fabDel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //Rimane aperto per 10 secondi
+                Snackbar.make(view, "", 10000)
+                        .setAction(getResources().getString(R.string.del_position), new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if(isNetworkAvailable()){
+                                    //TODO servizio di cancellazione
+                                    //new HttpCalls().execute( URL_SERVIZI + preferences.getString("facebookId",""), "POST", "longitude=" + getLongitude() + "&latitude=" + getLatitude() + "&token=" + preferences.getString("accessToken","") + "&visualizza_mail=" + preferencesImpostazioni.getBoolean("switch_allow",false) );//EAAI42sewJxMBAPEobC1jOsSITrQztFUXwI7qOSbjPzhsJUfGqxIsY3ZBQCb3ex8dBngkupRaqZBDwfEwzDZAJfcQRvBZCPCYQrNSPSPgSSYtqFFmvhiUSzHZBbboHqTBAxwCjFSx4J2Qi5d0OMRXmjxlbZBykGgtaw3oIgQR6myZC5iF9mZCWBScUVie4rmIsqZAMpfZCf2rA2zE6uhwhcBnQN");
+                                } else {
+                                    Toast toast = Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_internet), Toast.LENGTH_LONG);
+                                    toast.show();
+                                }
+                            }
+                        }).show();
+            }
+        });
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
