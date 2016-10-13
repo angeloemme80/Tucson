@@ -120,10 +120,13 @@ public class MapViewFragment extends Fragment {
         final SharedPreferences preferences = getActivity().getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
         //Il FloatingActionButton è il bottone rotondo in basso a destra che apre il menu di invio posizione
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        FloatingActionButton fabDel = (FloatingActionButton) getActivity().findViewById(R.id.fabDel);
         if(preferences.getString("facebookId","").equals("")){
             fab.setVisibility(View.INVISIBLE);
+            fabDel.setVisibility(View.INVISIBLE);
         } else {
             fab.setVisibility(View.VISIBLE);
+            fabDel.setVisibility(View.VISIBLE);
         }
 
         try {

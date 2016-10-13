@@ -30,6 +30,8 @@ public class ImpostazioniFragment extends Fragment {
         //rendo INvisibile il FloatingActionButton che è il bottone rotondo in basso a destra che apre il menu di invio posizione
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
         fab.setVisibility(View.INVISIBLE);
+        FloatingActionButton fabDel = (FloatingActionButton) getActivity().findViewById(R.id.fabDel);
+        fabDel.setVisibility(View.INVISIBLE);
 
         SharedPreferences preferencesImpostazioni = getActivity().getSharedPreferences(MY_PREFS_SETTINGS, MODE_PRIVATE);
 

@@ -73,6 +73,8 @@ public class FacebookLogin extends Fragment {
         //rendo INvisibile il FloatingActionButton che è il bottone rotondo in basso a destra che apre il menu di invio posizione
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
         fab.setVisibility(View.INVISIBLE);
+        FloatingActionButton fabDel = (FloatingActionButton) getActivity().findViewById(R.id.fabDel);
+        fabDel.setVisibility(View.INVISIBLE);
 
         LoginButton loginButton = (LoginButton) rootView.findViewById(R.id.login_button);
 
@@ -116,6 +118,8 @@ public class FacebookLogin extends Fragment {
                 //rendo visibile il FloatingActionButton che è il bottone rotondo in basso a destra che apre il menu di invio posizione
                 FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
                 fab.setVisibility(View.VISIBLE);
+                FloatingActionButton fabDel = (FloatingActionButton) getActivity().findViewById(R.id.fabDel);
+                fabDel.setVisibility(View.VISIBLE);
 
                 Bundle bundle = new Bundle();
                 bundle.putString("fields", "email, id, name, first_name, last_name, age_range, link, gender, locale, picture, timezone, updated_time, verified");
