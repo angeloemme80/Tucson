@@ -121,7 +121,7 @@ public class FacebookLogin extends Fragment {
                 FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
                 fab.setVisibility(View.VISIBLE);
                 FloatingActionButton fabDel = (FloatingActionButton) getActivity().findViewById(R.id.fabDel);
-                fabDel.setVisibility(View.VISIBLE);
+                //TODO abilitare appena la funzione di cancellazione è complate e funzionante fabDel.setVisibility(View.VISIBLE);
 
                 Bundle bundle = new Bundle();
                 bundle.putString("fields", "email, id, name, first_name, last_name, age_range, link, gender, locale, picture, timezone, updated_time, verified");

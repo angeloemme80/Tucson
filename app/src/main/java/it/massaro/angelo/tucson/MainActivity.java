@@ -12,6 +12,8 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.text.format.DateFormat;
@@ -25,6 +27,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
@@ -55,6 +58,9 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
+import static it.massaro.angelo.tucson.R.id.start;
+import static it.massaro.angelo.tucson.R.menu.main;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -69,11 +75,14 @@ public class MainActivity extends AppCompatActivity
     public static final String MY_PREFS_NAME = "MyPrefsFile";//Salvo le informazioni sul login di facebook
     public static final String MY_PREFS_SETTINGS = "MyPrefsSettings";//Salvo le informazioni del fragment delle impostazioni
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //AppEventsLogger.activateApp(this);
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -118,7 +127,7 @@ public class MainActivity extends AppCompatActivity
                             public void onClick(View v) {
                                 if(isNetworkAvailable()){
                                     //TODO servizio di cancellazione
-                                    //new HttpCalls().execute( URL_SERVIZI + preferences.getString("facebookId",""), "POST", "longitude=" + getLongitude() + "&latitude=" + getLatitude() + "&token=" + preferences.getString("accessToken","") + "&visualizza_mail=" + preferencesImpostazioni.getBoolean("switch_allow",false) );//EAAI42sewJxMBAPEobC1jOsSITrQztFUXwI7qOSbjPzhsJUfGqxIsY3ZBQCb3ex8dBngkupRaqZBDwfEwzDZAJfcQRvBZCPCYQrNSPSPgSSYtqFFmvhiUSzHZBbboHqTBAxwCjFSx4J2Qi5d0OMRXmjxlbZBykGgtaw3oIgQR6myZC5iF9mZCWBScUVie4rmIsqZAMpfZCf2rA2zE6uhwhcBnQN");
+                                    new HttpCalls().execute( URL_SERVIZI + preferences.getString("facebookId","") + "/DELETE", "POST", "token=" + preferences.getString("accessToken","") );
                                 } else {
                                     Toast toast = Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_internet), Toast.LENGTH_LONG);
                                     toast.show();

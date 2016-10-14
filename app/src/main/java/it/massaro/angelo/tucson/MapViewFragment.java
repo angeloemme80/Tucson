@@ -126,7 +126,7 @@ public class MapViewFragment extends Fragment {
             fabDel.setVisibility(View.INVISIBLE);
         } else {
             fab.setVisibility(View.VISIBLE);
-            fabDel.setVisibility(View.VISIBLE);
+            //TODO abilitare appena la funzione di cancellazione è complate e funzionante fabDel.setVisibility(View.VISIBLE);
         }
 
         try {
