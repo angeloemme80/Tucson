@@ -91,7 +91,7 @@ public class MapViewFragment extends Fragment {
 
         //INIZIO Controllo se ha il gps attivo e in caso negativo chiedo all'utente di attivarlo
         LocationManager manager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
-        if( !manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && preferencesImpostazioni.getBoolean("activate_gps",true) ) {
+        if( !manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) && preferencesImpostazioni.getBoolean("activate_gps",true) ) {
             //Ask the user to enable GPS
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle( getResources().getString(R.string.gps_activation) );
