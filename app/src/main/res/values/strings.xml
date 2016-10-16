@@ -32,5 +32,6 @@
     <string name="gps_activation">GPS activation</string>
     <string name="enable_gps">Would you like to enable GPS?</string>
     <string name="sent_on">Sent on</string>
+    <string name="no_gps">Warning: Your device does not have GPS, application unusable</string>
 
 </resources>

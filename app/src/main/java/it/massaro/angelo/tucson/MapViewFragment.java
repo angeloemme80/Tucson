@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -73,11 +74,22 @@ public class MapViewFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.location_fragment, container, false);
 
-        //INIZIO Controllo se ha il gps e chiedo all'utente di attivarlo
+        final SharedPreferences preferencesImpostazioni = getActivity().getSharedPreferences(MY_PREFS_SETTINGS, MODE_PRIVATE);
+
+        //INIZIO Controllo se ha un gps o un dispositivo di rete che puo dare la posizione, in caso negativo, lo mando sulla view di info mandandogli un messaggio
         PackageManager pm = getActivity().getPackageManager();
-        boolean hasGps = pm.hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS);
+        boolean hasGps = pm.hasSystemFeature(PackageManager. FEATURE_LOCATION);
+        if(hasGps==false){
+            Toast toast = Toast.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.no_gps), Toast.LENGTH_LONG);
+            toast.show();
+            ((MainActivity)getActivity()).apriFragmentInfo();
+            return null;
+        }
+        //FINE Controllo se ha un gps o un dispositivo di rete che puo dare la posizione, in caso negativo, lo mando sulla view di info mandandogli un messaggio
+
+        //INIZIO Controllo se ha il gps attivo e in caso negativo chiedo all'utente di attivarlo
         LocationManager manager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
-        if(!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        if( !manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && preferencesImpostazioni.getBoolean("activate_gps",true) ) {
             //Ask the user to enable GPS
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle( getResources().getString(R.string.gps_activation) );
@@ -94,12 +106,15 @@ public class MapViewFragment extends Fragment {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     //No location service, no Activity
+                    SharedPreferences.Editor editor = getActivity().getSharedPreferences(MY_PREFS_SETTINGS, getActivity().MODE_PRIVATE).edit();
+                    editor.putBoolean("activate_gps", false );
+                    editor.commit();
                     return;
                 }
             });
             builder.create().show();
         }
-        //FINE Controllo se ha il gps e chiedo all'utente di attivarlo
+        //FINE Controllo se ha il gps attivo e in caso negativo chiedo all'utente di attivarlo
 
 
 
@@ -268,25 +283,33 @@ public class MapViewFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mMapView.onResume();
+        if(mMapView!=null) {
+            mMapView.onResume();
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mMapView.onPause();
+        if(mMapView!=null) {
+            mMapView.onPause();
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mMapView.onDestroy();
+        if(mMapView!=null) {
+            mMapView.onDestroy();
+        }
     }
 
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        mMapView.onLowMemory();
+        if(mMapView!=null) {
+            mMapView.onLowMemory();
+        }
     }
 
     public String getMenuClick() {
