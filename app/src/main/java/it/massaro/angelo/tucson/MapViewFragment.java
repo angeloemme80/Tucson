@@ -70,11 +70,13 @@ public class MapViewFragment extends Fragment {
     // Declare a variable for the cluster manager.
     private ClusterManager<MyItem> mClusterManager;
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.location_fragment, container, false);
 
         final SharedPreferences preferencesImpostazioni = getActivity().getSharedPreferences(MY_PREFS_SETTINGS, MODE_PRIVATE);
+        final SharedPreferences.Editor editor = getActivity().getSharedPreferences(MY_PREFS_SETTINGS, getActivity().MODE_PRIVATE).edit();
 
         //INIZIO Controllo se ha un gps o un dispositivo di rete che puo dare la posizione, in caso negativo, lo mando sulla view di info mandandogli un messaggio
         PackageManager pm = getActivity().getPackageManager();
@@ -98,15 +100,16 @@ public class MapViewFragment extends Fragment {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     //Launch settings, allowing user to make a change
-                    Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    startActivity(i);
+                    if (isAdded()) {
+                        Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        startActivity(i);
+                    }
                 }
             });
             builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     //No location service, no Activity
-                    SharedPreferences.Editor editor = getActivity().getSharedPreferences(MY_PREFS_SETTINGS, getActivity().MODE_PRIVATE).edit();
                     editor.putBoolean("activate_gps", false );
                     editor.commit();
                     return;
@@ -259,11 +262,12 @@ public class MapViewFragment extends Fragment {
 
                 boolean connessione = ((MainActivity)getActivity()).isNetworkAvailable();
 
-                if (getMenuClick().equals("mappa") && connessione){
-                    httpCalls.execute(URL_SERVIZI + "?id=" + preferences.getString("facebookId","") + "&token=" + preferences.getString("accessToken", ""), "GET", null);
-                } else if (getMenuClick().equals("storico_posizioni") && connessione){
-                    httpCalls.execute(URL_SERVIZI + preferences.getString("facebookId","") + "?token=" + preferences.getString("accessToken", "") + "&limite=" + preferencesImpostazioni.getInt("seekBarValue",999), "GET", null);
-                } else if (connessione==false){
+
+                if (getMenuClick().equals("mappa") && connessione) {
+                    httpCalls.execute(URL_SERVIZI + "?id=" + preferences.getString("facebookId", "") + "&token=" + preferences.getString("accessToken", ""), "GET", null);
+                } else if (getMenuClick().equals("storico_posizioni") && connessione) {
+                    httpCalls.execute(URL_SERVIZI + preferences.getString("facebookId", "") + "?token=" + preferences.getString("accessToken", "") + "&limite=" + preferencesImpostazioni.getInt("seekBarValue", 999), "GET", null);
+                } else if (connessione == false) {
                     Toast toast = Toast.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.no_internet), Toast.LENGTH_LONG);
                     toast.show();
                 }
