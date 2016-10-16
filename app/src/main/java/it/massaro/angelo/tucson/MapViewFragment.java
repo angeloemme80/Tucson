@@ -80,7 +80,7 @@ public class MapViewFragment extends Fragment {
 
         //INIZIO Controllo se ha un gps o un dispositivo di rete che puo dare la posizione, in caso negativo, lo mando sulla view di info mandandogli un messaggio
         PackageManager pm = getActivity().getPackageManager();
-        boolean hasGps = pm.hasSystemFeature(PackageManager. FEATURE_LOCATION);
+        boolean hasGps = pm.hasSystemFeature(PackageManager.FEATURE_LOCATION);
         if(hasGps==false){
             Toast toast = Toast.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.no_gps), Toast.LENGTH_LONG);
             toast.show();
@@ -261,7 +261,6 @@ public class MapViewFragment extends Fragment {
                 HttpCalls httpCalls = new HttpCalls(googleMap, myPosition);
 
                 boolean connessione = ((MainActivity)getActivity()).isNetworkAvailable();
-
 
                 if (getMenuClick().equals("mappa") && connessione) {
                     httpCalls.execute(URL_SERVIZI + "?id=" + preferences.getString("facebookId", "") + "&token=" + preferences.getString("accessToken", ""), "GET", null);
