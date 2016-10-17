@@ -16,7 +16,6 @@
     <string name="fb_login_protocol_scheme">fb625462257657619</string>
 
 
-
     <string name="send_position">Send Location</string>
     <string name="del_position">Delete Location</string>
     <string name="error_send_position">Error during the location send</string>
