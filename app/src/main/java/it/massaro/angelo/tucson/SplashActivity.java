@@ -1,5 +1,6 @@
 package it.massaro.angelo.tucson;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,7 +15,7 @@ import java.io.File;
 Questa activity serve solo come splash iniziale
  */
 
-public class SplashActivity extends AppCompatActivity {
+public class SplashActivity extends Activity {
 
     int timeout = 3000;
 
