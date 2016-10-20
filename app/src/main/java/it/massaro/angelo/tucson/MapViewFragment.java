@@ -70,6 +70,61 @@ public class MapViewFragment extends Fragment {
     // Declare a variable for the cluster manager.
     private ClusterManager<MyItem> mClusterManager;
 
+    private static final int TWO_MINUTES = 1000 * 60 * 2;
+
+    /** Determines whether one Location reading is better than the current Location fix
+     * @param location  The new Location that you want to evaluate
+     * @param currentBestLocation  The current Location fix, to which you want to compare the new one
+     */
+    protected boolean isBetterLocation(Location location, Location currentBestLocation) {
+        if (currentBestLocation == null) {
+            // A new location is always better than no location
+            return true;
+        }
+
+        // Check whether the new location fix is newer or older
+        long timeDelta = location.getTime() - currentBestLocation.getTime();
+        boolean isSignificantlyNewer = timeDelta > TWO_MINUTES;
+        boolean isSignificantlyOlder = timeDelta < -TWO_MINUTES;
+        boolean isNewer = timeDelta > 0;
+
+        // If it's been more than two minutes since the current location, use the new location
+        // because the user has likely moved
+        if (isSignificantlyNewer) {
+            return true;
+            // If the new location is more than two minutes older, it must be worse
+        } else if (isSignificantlyOlder) {
+            return false;
+        }
+
+        // Check whether the new location fix is more or less accurate
+        int accuracyDelta = (int) (location.getAccuracy() - currentBestLocation.getAccuracy());
+        boolean isLessAccurate = accuracyDelta > 0;
+        boolean isMoreAccurate = accuracyDelta < 0;
+        boolean isSignificantlyLessAccurate = accuracyDelta > 200;
+
+        // Check if the old and new location are from the same provider
+        boolean isFromSameProvider = isSameProvider(location.getProvider(),
+                currentBestLocation.getProvider());
+
+        // Determine location quality using a combination of timeliness and accuracy
+        if (isMoreAccurate) {
+            return true;
+        } else if (isNewer && !isLessAccurate) {
+            return true;
+        } else if (isNewer && !isSignificantlyLessAccurate && isFromSameProvider) {
+            return true;
+        }
+        return false;
+    }
+
+    /** Checks whether two providers are the same */
+    private boolean isSameProvider(String provider1, String provider2) {
+        if (provider1 == null) {
+            return provider2 == null;
+        }
+        return provider1.equals(provider2);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -91,7 +146,7 @@ public class MapViewFragment extends Fragment {
 
         //INIZIO Controllo se ha il gps attivo e in caso negativo chiedo all'utente di attivarlo
         LocationManager manager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
-        if( !manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) && preferencesImpostazioni.getBoolean("activate_gps",true) ) {
+        if( !manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && preferencesImpostazioni.getBoolean("activate_gps",true) ) {
             //Ask the user to enable GPS
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle( getResources().getString(R.string.gps_activation) );
@@ -163,6 +218,7 @@ public class MapViewFragment extends Fragment {
         mMapView.getMapAsync(new OnMapReadyCallback() {
 
             private LocationManager locationManager;
+            Location mLocation;
             private String provider;
 
             @Override
@@ -180,17 +236,10 @@ public class MapViewFragment extends Fragment {
                     }
                 });
 
-                // For dropping a marker at a point on the Map
-                /*
-                LatLng sydney = new LatLng(-34, 151);
-                googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker Title").snippet("Marker Description"));
-                // For zooming automatically to the location of the marker
-                CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(12).build();
-                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                */
+
                 locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-                Criteria criteria = new Criteria();
-                provider = locationManager.getBestProvider(criteria, false);
+                //Criteria criteria = new Criteria();
+                provider = locationManager.GPS_PROVIDER;
 
                 if (ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     // TODO: Consider calling
@@ -219,20 +268,21 @@ public class MapViewFragment extends Fragment {
                                 /*LatLng nuovaPosizione = new LatLng( location.getLatitude(), location.getLongitude() );
                                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(nuovaPosizione));
                                 */
+                                mLocation = location;
                             }
                         });
                 //Fine refresh posizione
 
 
 
-                Location location = locationManager.getLastKnownLocation(provider);
+                mLocation = locationManager.getLastKnownLocation(provider);
                 myPosition = null;
-                if (location != null) {
+                if (mLocation != null) {
                     //Passo all'activity longitudine e latitudine
-                    ((MainActivity)getActivity()).setLatitude( location.getLatitude() );
-                    ((MainActivity)getActivity()).setLongitude( location.getLongitude() );
+                    ((MainActivity)getActivity()).setLatitude( mLocation.getLatitude() );
+                    ((MainActivity)getActivity()).setLongitude( mLocation.getLongitude() );
                     //Configuro il marker con la mia posizione attuale
-                    myPosition = new LatLng(location.getLatitude(), location.getLongitude());//POSIZIONE CORRENTE
+                    myPosition = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());//POSIZIONE CORRENTE
                     //googleMap.addMarker(new MarkerOptions().position(myPosition).title("myPosition"));
                     googleMap.moveCamera(CameraUpdateFactory.newLatLng(myPosition));
                     googleMap.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
