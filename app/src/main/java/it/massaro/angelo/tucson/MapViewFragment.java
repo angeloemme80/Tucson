@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
+import android.location.GpsSatellite;
+import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -32,7 +34,10 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.ClusterManager;
+import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,12 +53,14 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.util.Iterator;
 
 import it.massaro.angelo.tucson.map.MyItem;
 import it.massaro.angelo.tucson.map.OwnIconRendered;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.facebook.FacebookSdk.getApplicationContext;
+import static com.google.android.gms.wearable.DataMap.TAG;
 import static it.massaro.angelo.tucson.MainActivity.MY_PREFS_NAME;
 import static it.massaro.angelo.tucson.MainActivity.MY_PREFS_SETTINGS;
 import static it.massaro.angelo.tucson.MainActivity.URL_SERVIZI;
@@ -69,6 +76,10 @@ public class MapViewFragment extends Fragment {
     private String menuClick = "";
     // Declare a variable for the cluster manager.
     private ClusterManager<MyItem> mClusterManager;
+    MyItem miaPosizioneItem = null;
+    Marker markerMiaPosizione = null;
+    int contatoreDistanzaMinoreDi = 0;
+    LocationListener mListener = null;
 
     private static final int TWO_MINUTES = 1000 * 60 * 2;
 
@@ -136,21 +147,28 @@ public class MapViewFragment extends Fragment {
         //INIZIO Controllo se ha un gps o un dispositivo di rete che puo dare la posizione, in caso negativo, lo mando sulla view di info mandandogli un messaggio
         PackageManager pm = getActivity().getPackageManager();
         boolean hasGps = pm.hasSystemFeature(PackageManager.FEATURE_LOCATION);
-        if(hasGps==false){
+        if (hasGps == false) {
             Toast toast = Toast.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.no_gps), Toast.LENGTH_LONG);
             toast.show();
-            ((MainActivity)getActivity()).apriFragmentInfo();
+            ((MainActivity) getActivity()).apriFragmentInfo();
             return null;
         }
         //FINE Controllo se ha un gps o un dispositivo di rete che puo dare la posizione, in caso negativo, lo mando sulla view di info mandandogli un messaggio
 
+        //Controllo se esiste una connessione ad internet e lo avviso solamente
+        boolean connessione = ((MainActivity)getActivity()).isNetworkAvailable();
+        if (connessione == false) {
+            Toast toast = Toast.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.no_internet), Toast.LENGTH_LONG);
+            toast.show();
+        }
+
         //INIZIO Controllo se ha il gps attivo e in caso negativo chiedo all'utente di attivarlo
-        LocationManager manager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
-        if( !manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && preferencesImpostazioni.getBoolean("activate_gps",true) ) {
+        LocationManager manager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        if ( (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) && preferencesImpostazioni.getBoolean("activate_gps", true)) {
             //Ask the user to enable GPS
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle( getResources().getString(R.string.gps_activation) );
-            builder.setMessage( getResources().getString(R.string.enable_gps) );
+            builder.setTitle(getResources().getString(R.string.gps_activation));
+            builder.setMessage(getResources().getString(R.string.enable_gps));
             builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -165,7 +183,7 @@ public class MapViewFragment extends Fragment {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     //No location service, no Activity
-                    editor.putBoolean("activate_gps", false );
+                    editor.putBoolean("activate_gps", false);
                     editor.commit();
                     return;
                 }
@@ -175,32 +193,31 @@ public class MapViewFragment extends Fragment {
         //FINE Controllo se ha il gps attivo e in caso negativo chiedo all'utente di attivarlo
 
 
-
-
         //Recupero dal bundle il parametro menuClick per capire quale servizio lanciare, se quello che visualizza le posizioni di tutti o quello che visualizza lo storico delle mie posizioni
         Bundle bundle = this.getArguments();
         if (bundle != null) {
             setMenuClick(bundle.getString("menuClick", "mappa"));
         }
         //Cambio il titolo
-        if (getMenuClick().equals("mappa")){
+        if (getMenuClick().equals("mappa")) {
             getActivity().setTitle(getResources().getString(R.string.mappa) + " " + getResources().getString(R.string.app_name));
-        }else if (getMenuClick().equals("storico_posizioni")){
+        } else if (getMenuClick().equals("storico_posizioni")) {
             getActivity().setTitle(getResources().getString(R.string.historical_positions));
         }
 
         //Carico lo SharedPreferences
         final SharedPreferences preferences = getActivity().getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
         //Il FloatingActionButton è il bottone rotondo in basso a destra che apre il menu di invio posizione
-        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
-        FloatingActionButton fabDel = (FloatingActionButton) getActivity().findViewById(R.id.fabDel);
-        if(preferences.getString("facebookId","").equals("")){
+        final FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        final FloatingActionButton fabDel = (FloatingActionButton) getActivity().findViewById(R.id.fabDel);
+        /*
+        if (preferences.getString("facebookId", "").equals("")) {
             fab.setVisibility(View.INVISIBLE);
             fabDel.setVisibility(View.INVISIBLE);
         } else {
             fab.setVisibility(View.VISIBLE);
             //TODO abilitare appena la funzione di cancellazione è complate e funzionante fabDel.setVisibility(View.VISIBLE);
-        }
+        }*/
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -212,7 +229,6 @@ public class MapViewFragment extends Fragment {
         mMapView.onCreate(savedInstanceState);
 
         mMapView.onResume(); // needed to get the map to display immediately
-
 
 
         mMapView.getMapAsync(new OnMapReadyCallback() {
@@ -228,52 +244,139 @@ public class MapViewFragment extends Fragment {
 
                 // Mostra il bottone my location
                 //googleMap.setMyLocationEnabled(true);
-                googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener(){
+                googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
                     @Override
-                    public boolean onMyLocationButtonClick()
-                    {
+                    public boolean onMyLocationButtonClick() {
                         return false;
                     }
                 });
 
 
                 locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-                //Criteria criteria = new Criteria();
-                provider = locationManager.GPS_PROVIDER;
+                Criteria criteria = new Criteria();
+                criteria.setPowerRequirement(Criteria.POWER_LOW); // Chose your desired power consumption level.
+                criteria.setAccuracy(Criteria.ACCURACY_FINE); // Choose your accuracy requirement.
+                criteria.setSpeedRequired(true); // Chose if speed for first location fix is required.
+                criteria.setAltitudeRequired(false); // Choose if you use altitude.
+                criteria.setBearingRequired(false); // Choose if you use bearing.
+                criteria.setCostAllowed(false); // Choose if this provider can waste money :-)
+                provider = locationManager.getBestProvider(criteria, true);
+                //Toast.makeText(getActivity().getApplicationContext(), "BESTPROVIDER: " + provider, Toast.LENGTH_LONG).show();
+                //provider = locationManager.GPS_PROVIDER;
 
                 if (ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
                     return;
                 }
 
                 //Serve a refreshare la posizione
-                locationManager.requestLocationUpdates( provider, 0, 0, new LocationListener() {
-                            @Override
-                            public void onStatusChanged(String provider, int status, Bundle extras) {
+                //locationManager.requestLocationUpdates( provider, 0, 0,
+                mListener = new LocationListener() {
+                    @Override
+                    public void onStatusChanged(String provider, int status, Bundle extras) {
+                        if (getActivity() != null) {
+                            //Toast.makeText(getActivity().getApplicationContext(), "onStatusChanged: " + provider + " - STATUS:" + status, Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void onProviderEnabled(String provider) {
+                        if (getActivity() != null) {
+                            //Toast.makeText(getActivity().getApplicationContext(), "onProviderEnabled: " + provider, Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void onProviderDisabled(String provider) {
+                        if (getActivity() != null) {
+                            //Toast.makeText(getActivity().getApplicationContext(), "onProviderDisabled: " + provider, Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void onLocationChanged(final Location location) {
+
+                        //TODO Mentre il listener "ascolta" nuove posizioni, quando ne trova una nuova ne calcolo la distanza dall'ultima,
+                        // se supera i 5 metri faccio ripartire il listener. Stoppo il listener se ha trovato la posizione almeno 5 volte
+                        if (getActivity() != null && location != null && mLocation != null) {
+                            float distanzaTra2Punti = location.distanceTo(mLocation);
+                            if (distanzaTra2Punti < 5.0) {//Aggiorno il contatore, se per 5 volte la distanza è minore di 5 metri allora stoppo il listener, altrimenti faccio ripartire il contatore
+                                contatoreDistanzaMinoreDi += 1;
+                            } else {
+                                contatoreDistanzaMinoreDi = 0;
                             }
-                            @Override
-                            public void onProviderEnabled(String provider) {
+                            if (contatoreDistanzaMinoreDi >= 5 && locationManager != null) {
+                                if (ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                    return;
+                                }
+                                locationManager.removeUpdates(mListener);
                             }
-                            @Override
-                            public void onProviderDisabled(String provider) {
+
+                            //Toast toast = Toast.makeText(getActivity().getApplicationContext(), " DISTANZA: " + distanzaTra2Punti, Toast.LENGTH_LONG);
+                            //toast.show();
+                        }
+
+                        mLocation = location;
+
+
+                        //Verifica la posizione migliore: DA TESTARE
+                        //boolean migliore = isBetterLocation(location, mLocation);
+                        if(getActivity()!=null) {
+
+                            //Toast toast = Toast.makeText(getActivity().getApplicationContext(), " onLocationChanged: " + location.getProvider() + " - long:" + location.getLongitude() + " - lat:" + location.getLatitude(), Toast.LENGTH_LONG);
+                            //toast.show();
+
+                            ((MainActivity)getActivity()).setLatitude( mLocation.getLatitude() );
+                            ((MainActivity)getActivity()).setLongitude( mLocation.getLongitude() );
+
+                            //Visualizzo il pulsante per inviarla
+                            if (preferences.getString("facebookId", "").equals("")) {
+                                fab.setVisibility(View.INVISIBLE);
+                                fabDel.setVisibility(View.INVISIBLE);
+                            } else {
+                                fab.setVisibility(View.VISIBLE);
+                                //TODO abilitare appena la funzione di cancellazione è complate e funzionante fabDel.setVisibility(View.VISIBLE);
                             }
-                            @Override
-                            public void onLocationChanged(final Location location) {
-                                /*LatLng nuovaPosizione = new LatLng( location.getLatitude(), location.getLongitude() );
-                                googleMap.moveCamera(CameraUpdateFactory.newLatLng(nuovaPosizione));
-                                */
-                                mLocation = location;
+
+                            if(markerMiaPosizione!=null) {
+                                markerMiaPosizione.remove();
                             }
-                        });
+                            markerMiaPosizione = googleMap.addMarker(new MarkerOptions()
+                                    .position(new LatLng(mLocation.getLatitude(),mLocation.getLongitude()))
+                                    .title(getResources().getString(R.string.my_position))
+                                    .snippet(getResources().getString(R.string.current_position))
+                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)));
+
+                            /*
+                            if (mClusterManager != null) {
+                                if (miaPosizioneItem != null) {
+                                    mClusterManager.removeItem(miaPosizioneItem);
+                                }
+                                miaPosizioneItem = new MyItem(mLocation.getLatitude(),
+                                        mLocation.getLongitude(),
+                                        getResources().getString(R.string.my_position),
+                                        getResources().getString(R.string.current_position),
+                                        BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                                mClusterManager.addItem(miaPosizioneItem);
+                                mClusterManager.setRenderer(new OwnIconRendered(getActivity().getApplicationContext(), googleMap, mClusterManager));
+                            }
+                            */
+                        }
+
+                    }
+                };
+                //);
+
+                //Lancio il listener solo se uno dei due provider è abilitato
+                if( provider.equalsIgnoreCase("network") || provider.equalsIgnoreCase("gps")) {
+                    locationManager.requestLocationUpdates(provider, 0, 0, mListener);
+                }
                 //Fine refresh posizione
 
 
+
+                // Initialize the manager with the context and the map.
+                // (Activity extends context, so we can pass 'this' in the constructor.)
+                mClusterManager = new ClusterManager<MyItem>(getActivity().getApplicationContext(), googleMap);
 
                 mLocation = locationManager.getLastKnownLocation(provider);
                 myPosition = null;
@@ -281,19 +384,61 @@ public class MapViewFragment extends Fragment {
                     //Passo all'activity longitudine e latitudine
                     ((MainActivity)getActivity()).setLatitude( mLocation.getLatitude() );
                     ((MainActivity)getActivity()).setLongitude( mLocation.getLongitude() );
+
+                    //Visualizzo il pulsante per inviarla
+                    if (preferences.getString("facebookId", "").equals("")) {
+                        fab.setVisibility(View.INVISIBLE);
+                        fabDel.setVisibility(View.INVISIBLE);
+                    } else {
+                        if(getActivity()!=null) {
+                            //Toast toast = Toast.makeText(getActivity().getApplicationContext(), " POSIZIONE DISPONIBILE", Toast.LENGTH_LONG);
+                            //toast.show();
+                        }
+                        fab.setVisibility(View.VISIBLE);
+                        //TODO abilitare appena la funzione di cancellazione è complate e funzionante fabDel.setVisibility(View.VISIBLE);
+                    }
+
                     //Configuro il marker con la mia posizione attuale
                     myPosition = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());//POSIZIONE CORRENTE
-                    //googleMap.addMarker(new MarkerOptions().position(myPosition).title("myPosition"));
+
+                    if(markerMiaPosizione!=null) {
+                        markerMiaPosizione.remove();
+                    }
+                    markerMiaPosizione = googleMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(mLocation.getLatitude(),mLocation.getLongitude()))
+                            .title(getResources().getString(R.string.my_position))
+                            .snippet(getResources().getString(R.string.current_position))
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)));
+/*
+                    if(mClusterManager!=null) {
+                        if(miaPosizioneItem!=null) {
+                            mClusterManager.removeItem(miaPosizioneItem);
+                        }
+                        miaPosizioneItem = new MyItem(
+                                myPosition.latitude,
+                                myPosition.longitude,
+                                getResources().getString(R.string.my_position),
+                                getResources().getString(R.string.current_position),
+                                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                        mClusterManager.addItem(miaPosizioneItem);
+                        mClusterManager.setRenderer(new OwnIconRendered(getActivity().getApplicationContext(), googleMap, mClusterManager));
+                    }
+*/
+
                     googleMap.moveCamera(CameraUpdateFactory.newLatLng(myPosition));
                     googleMap.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
                 } else {//se il gps non riesce ad ottenere la posizione apro la mappa su ROMA con zoom sull'Italia
+                    if(getActivity()!=null) {
+                        //Toast toast = Toast.makeText(getActivity().getApplicationContext(), " POSIZIONE VUOTA", Toast.LENGTH_LONG);
+                        //toast.show();
+                    }
                     googleMap.moveCamera(CameraUpdateFactory.newLatLng( new LatLng(41.900780, 12.483198) ));
                     googleMap.animateCamera(CameraUpdateFactory.zoomTo(5), 2000, null);
+                    fab.setVisibility(View.INVISIBLE);
+                    fabDel.setVisibility(View.INVISIBLE);
                 }
 
-                // Initialize the manager with the context and the map.
-                // (Activity extends context, so we can pass 'this' in the constructor.)
-                mClusterManager = new ClusterManager<MyItem>(getActivity().getApplicationContext(), googleMap);
+
                 // Point the map's listeners at the listeners implemented by the cluster
                 // manager.
                 googleMap.setOnCameraIdleListener(mClusterManager);
@@ -336,6 +481,8 @@ public class MapViewFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        //Toast toast = Toast.makeText(getActivity().getApplicationContext(), "onResume", Toast.LENGTH_LONG);
+        //toast.show();
         if(mMapView!=null) {
             mMapView.onResume();
         }
@@ -344,6 +491,8 @@ public class MapViewFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+        //Toast toast = Toast.makeText(getActivity().getApplicationContext(), "onPause", Toast.LENGTH_LONG);
+        //toast.show();
         if(mMapView!=null) {
             mMapView.onPause();
         }
@@ -352,6 +501,8 @@ public class MapViewFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        //Toast toast = Toast.makeText(getActivity().getApplicationContext(), "onDestroy", Toast.LENGTH_LONG);
+        //toast.show();
         if(mMapView!=null) {
             mMapView.onDestroy();
         }
@@ -360,6 +511,8 @@ public class MapViewFragment extends Fragment {
     @Override
     public void onLowMemory() {
         super.onLowMemory();
+        //Toast toast = Toast.makeText(getActivity().getApplicationContext(), "onLowMemory", Toast.LENGTH_LONG);
+        //toast.show();
         if(mMapView!=null) {
             mMapView.onLowMemory();
         }
@@ -399,12 +552,6 @@ public class MapViewFragment extends Fragment {
             googleMap.clear();
             if(myPosition!=null){
                 /*
-                googleMap.addMarker(new MarkerOptions()
-                        .title( getResources().getString(R.string.my_position) )
-                        .snippet( getResources().getString(R.string.current_position) )
-                        .position(myPosition))
-                        .setDraggable(true);
-                */
                 MyItem offsetItem = new MyItem(myPosition.latitude,
                         myPosition.longitude,
                         getResources().getString(R.string.my_position),
@@ -412,6 +559,7 @@ public class MapViewFragment extends Fragment {
                         BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
                 mClusterManager.addItem(offsetItem);
                 mClusterManager.setRenderer(new OwnIconRendered(getActivity().getApplicationContext(), googleMap, mClusterManager));
+                */
             }
 
             JSONObject mainObject = null;
@@ -427,7 +575,7 @@ public class MapViewFragment extends Fragment {
                     JSONObject objectInArray = array.getJSONObject(i);
                     //Log.d("name:", objectInArray.getString("NAME")); Log.d("name:", objectInArray.getString("LONGITUDE"));
                     //Imposto un marker per ogni posizione restituita nel json
-                    //Utilita.getReadableDate("2016-10-06 20:54:27");
+
                     String title = getResources().getString(R.string.sent_on);
                     if(objectInArray.has("NAME")){//Se ha il nome nel json allora è il servizio getPositions quindi metto il nome come titolo
                         title = objectInArray.getString("NAME");
@@ -436,16 +584,7 @@ public class MapViewFragment extends Fragment {
                     if( objectInArray.has("EMAIL") && objectInArray.has("VISUALIZZA_MAIL") && objectInArray.getString("VISUALIZZA_MAIL").equals("1") ){//Se ha EMAIL nel json e l'utente aveva consentito la visualizzazione allora è il servizio getPositions quindi aggiungo EMAIL al titolo
                         title += " - " + objectInArray.getString("EMAIL");
                     }
-                    /*
-                    googleMap.addMarker(new MarkerOptions()
-                            .title( title )
-                            .snippet( Utilita.getReadableDate(objectInArray.getString("POSITION_DATE")) )
-                            .position(new LatLng( Double.parseDouble(objectInArray.getString("LATITUDE")), Double.parseDouble(objectInArray.getString("LONGITUDE")) ))
-                            //.icon(BitmapDescriptorFactory.fromResource(R.drawable.mymarker))
-                            )
-                            .setDraggable(true)
-                            ;
-                    */
+
                     MyItem offsetItem = new MyItem( Double.parseDouble(objectInArray.getString("LATITUDE")),
                             Double.parseDouble(objectInArray.getString("LONGITUDE")),
                             title,

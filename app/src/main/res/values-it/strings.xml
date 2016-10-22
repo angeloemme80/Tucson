@@ -30,7 +30,7 @@
     <string name="max_historical_positions">Numero massimo di posizioni visibili nella funzionalità "Storico posizioni"</string>
     <string name="no_internet">Nessuna connessione internet</string>
     <string name="gps_activation">Attivazione GPS</string>
-    <string name="enable_gps">Vuoi attivare il GPS?</string>
+    <string name="enable_gps">Vuoi attivare i servizi di localizzazione?</string>
     <string name="sent_on">Inviata il</string>
     <string name="no_gps">Attenzione: Il tuo dispositivo non è dotato di GPS, app non utilizzabile</string>
 

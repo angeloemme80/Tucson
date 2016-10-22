@@ -119,7 +119,7 @@ public class FacebookLogin extends Fragment {
 
                 //rendo visibile il FloatingActionButton che è il bottone rotondo in basso a destra che apre il menu di invio posizione
                 FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
-                fab.setVisibility(View.VISIBLE);
+                //fab.setVisibility(View.VISIBLE);
                 FloatingActionButton fabDel = (FloatingActionButton) getActivity().findViewById(R.id.fabDel);
                 //TODO abilitare appena la funzione di cancellazione è complate e funzionante fabDel.setVisibility(View.VISIBLE);
 
