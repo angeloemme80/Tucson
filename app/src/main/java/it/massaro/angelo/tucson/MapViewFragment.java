@@ -340,6 +340,8 @@ public class MapViewFragment extends Fragment {
                             if(markerMiaPosizione!=null) {
                                 markerMiaPosizione.remove();
                             }
+                            //Toast toast = Toast.makeText(getActivity().getApplicationContext(), mLocation.getLatitude() + " DENTRO " +  mLocation.getLongitude(), Toast.LENGTH_SHORT);
+                            //toast.show();
                             markerMiaPosizione = googleMap.addMarker(new MarkerOptions()
                                     .position(new LatLng(mLocation.getLatitude(),mLocation.getLongitude()))
                                     .title(getResources().getString(R.string.my_position))
@@ -404,11 +406,14 @@ public class MapViewFragment extends Fragment {
                     if(markerMiaPosizione!=null) {
                         markerMiaPosizione.remove();
                     }
+                    //Toast toast = Toast.makeText(getActivity().getApplicationContext(), mLocation.getLatitude() + " FUORI " +  mLocation.getLongitude(), Toast.LENGTH_SHORT);
+                    //toast.show();
                     markerMiaPosizione = googleMap.addMarker(new MarkerOptions()
                             .position(new LatLng(mLocation.getLatitude(),mLocation.getLongitude()))
                             .title(getResources().getString(R.string.my_position))
                             .snippet(getResources().getString(R.string.current_position))
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)));
+
 /*
                     if(mClusterManager!=null) {
                         if(miaPosizioneItem!=null) {
