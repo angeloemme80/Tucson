@@ -16,10 +16,12 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -137,6 +139,35 @@ public class MapViewFragment extends Fragment {
         return provider1.equals(provider2);
     }
 
+
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+
+    public boolean checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+                //  TODO: Prompt with explanation!
+
+                //Prompt the user once explanation has been shown
+                ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
+
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.location_fragment, container, false);
@@ -162,9 +193,16 @@ public class MapViewFragment extends Fragment {
             toast.show();
         }
 
+        //Controllo la versione di android che se è dalla 6 in poi deve concedere i permessi di localizzazione
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            checkLocationPermission();
+        }
+
         //INIZIO Controllo se ha il gps attivo e in caso negativo chiedo all'utente di attivarlo
         LocationManager manager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        if ((!manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) && preferencesImpostazioni.getBoolean("activate_gps", true)) {
+
+        if ((!manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) && !manager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER) )
+                && preferencesImpostazioni.getBoolean("activate_gps", true)) {
             //Ask the user to enable GPS
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(getResources().getString(R.string.gps_activation));
@@ -242,8 +280,20 @@ public class MapViewFragment extends Fragment {
                 Log.d("onMapReady", "MAPPA pronta");
                 googleMap = mMap;
 
-                // Mostra il bottone my location
-                googleMap.setMyLocationEnabled(true);
+
+
+                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    //User has previously accepted this permission
+                    if (ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        googleMap.setMyLocationEnabled(true);
+                    }
+                } else {
+                    //Not in api-23, no need to prompt
+                    googleMap.setMyLocationEnabled(true);
+                }
+
+
+                //googleMap.setMyLocationEnabled(true);
                 googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
                     @Override
                     public boolean onMyLocationButtonClick() {
@@ -372,11 +422,11 @@ public class MapViewFragment extends Fragment {
                 };
                 //);
 
-                //Lancio il listener solo se uno dei due provider è abilitato
-                //if( provider.equalsIgnoreCase("network") || provider.equalsIgnoreCase("gps")) {
-                    locationManager.requestLocationUpdates(provider, 0, 0, mListener);
-                //}
-                //Fine refresh posizione
+
+
+                //Lancio il listener
+                locationManager.requestLocationUpdates(provider, 0, 0, mListener);
+
 
 
 

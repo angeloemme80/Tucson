@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInstaller;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -16,6 +17,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
@@ -58,6 +60,7 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
+import static it.massaro.angelo.tucson.MapViewFragment.MY_PERMISSIONS_REQUEST_LOCATION;
 import static it.massaro.angelo.tucson.R.id.start;
 import static it.massaro.angelo.tucson.R.menu.main;
 
@@ -98,8 +101,8 @@ public class MainActivity extends AppCompatActivity
 
                 apriFragmentMappa("mappa");
 
-                //Rimane aperto per 10 secondi
-                Snackbar.make(view, "", 10000)
+                //Rimane aperto per 15 secondi
+                Snackbar.make(view, "", 15000)
                         .setAction(getResources().getString(R.string.send_position), new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -157,6 +160,29 @@ public class MainActivity extends AppCompatActivity
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay!
+                    if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        //googleMap.setMyLocationEnabled(true);
+                        apriFragmentMappa("mappa");
+                    }
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(this, getResources().getString(R.string.no_permission), Toast.LENGTH_LONG).show();
+                }
+                return;
+            }
+
+        }
+    }
 
     @Override
     public void onBackPressed() {

@@ -33,5 +33,6 @@
     <string name="enable_gps">Vuoi attivare i servizi di localizzazione?</string>
     <string name="sent_on">Inviata il</string>
     <string name="no_gps">Attenzione: Il tuo dispositivo non è dotato di GPS, app non utilizzabile</string>
+    <string name="no_permission">Permesso negato</string>
 
 </resources>

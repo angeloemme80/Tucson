@@ -32,5 +32,6 @@
     <string name="enable_gps">Would you like to enable location based services?</string>
     <string name="sent_on">Sent on</string>
     <string name="no_gps">Warning: Your device does not have GPS, application unusable</string>
+    <string name="no_permission">permission denied</string>
 
 </resources>
