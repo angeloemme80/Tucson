@@ -75,7 +75,21 @@ public class Utilita {
         return reportDate;
     }
 
+    public static String getTimestampDate(String yyyyMMddHHmmss)
+    {
+        yyyyMMddHHmmss = yyyyMMddHHmmss.replace("/", "-");
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String reportDate = "";
+        try {
+            Date date = formatter.parse(yyyyMMddHHmmss);
+            reportDate = sdf.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
+        return reportDate;
+    }
 
 
 }

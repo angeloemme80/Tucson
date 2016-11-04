@@ -14,12 +14,14 @@ public class MyItem implements ClusterItem {
     private final String mTitle;
     private final String mSnippet;
     private final BitmapDescriptor mIcon;
+    private final String mTipoMarker;
 
-    public MyItem(double lat, double lng, String title, String snippet, BitmapDescriptor icon) {
+    public MyItem(double lat, double lng, String title, String snippet, BitmapDescriptor icon, String tipoMarker) {
         mPosition = new LatLng(lat, lng);
         mTitle = title;
         mSnippet = snippet;
         mIcon = icon;
+        mTipoMarker = tipoMarker;
     }
 
     @Override
@@ -38,5 +40,9 @@ public class MyItem implements ClusterItem {
 
     public BitmapDescriptor getIcon() {
         return mIcon;
+    }
+
+    public String getmTipoMarker() {
+        return mTipoMarker;
     }
 }

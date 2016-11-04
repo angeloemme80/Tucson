@@ -33,5 +33,9 @@
     <string name="sent_on">Sent on</string>
     <string name="no_gps">Warning: Your device does not have GPS, application unusable</string>
     <string name="no_permission">permission denied</string>
+    <string name="delete_position_title">Delete location</string>
+    <string name="delete_position">Do you want to delete this location?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 
 </resources>

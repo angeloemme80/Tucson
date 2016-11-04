@@ -38,6 +38,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 
@@ -201,13 +203,13 @@ public class MapViewFragment extends Fragment {
         //INIZIO Controllo se ha il gps attivo e in caso negativo chiedo all'utente di attivarlo
         LocationManager manager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
-        if ((!manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) && !manager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER) )
+        if ((!manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)  )
                 && preferencesImpostazioni.getBoolean("activate_gps", true)) {
             //Ask the user to enable GPS
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(getResources().getString(R.string.gps_activation));
             builder.setMessage(getResources().getString(R.string.enable_gps));
-            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            builder.setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     //Launch settings, allowing user to make a change
@@ -217,7 +219,7 @@ public class MapViewFragment extends Fragment {
                     }
                 }
             });
-            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            builder.setNegativeButton(getResources().getString(R.string.no), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     //No location service, no Activity
@@ -434,6 +436,7 @@ public class MapViewFragment extends Fragment {
                 // (Activity extends context, so we can pass 'this' in the constructor.)
                 mClusterManager = new ClusterManager<MyItem>(getActivity().getApplicationContext(), googleMap);
 
+
                 mLocation = locationManager.getLastKnownLocation(provider);
                 myPosition = null;
                 if (mLocation != null) {
@@ -523,7 +526,34 @@ public class MapViewFragment extends Fragment {
                     toast.show();
                 }
 
-
+                //INIZIO Gestione del click sull'Infowindows del marker
+                googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                    @Override
+                    public void onInfoWindowClick(final Marker marker) {
+                        if(marker.getTag()!=null && ((String)marker.getTag()).equalsIgnoreCase("STORICO") ){
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setTitle(getResources().getString(R.string.delete_position_title));
+                            builder.setMessage(getResources().getString(R.string.delete_position));
+                            builder.setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    //Toast.makeText(getActivity().getApplicationContext(), marker.getSnippet(), Toast.LENGTH_LONG).show();
+                                    //Nello snippet c'è la data e ora della posizione da cancellare
+                                    HttpCalls httpCalls = new HttpCalls(googleMap, myPosition);
+                                    httpCalls.execute(URL_SERVIZI + preferences.getString("facebookId", "") + "/DELETE", "POST", "positionDate=" + Utilita.getTimestampDate(marker.getSnippet()) + "&token=" + preferences.getString("accessToken", "") + "&limite=" + preferencesImpostazioni.getInt("seekBarValue", 999) );
+                                }
+                            });
+                            builder.setNegativeButton(getResources().getString(R.string.no), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    return;
+                                }
+                            });
+                            builder.create().show();
+                        }
+                    }
+                });
+                //FINE Gestione del click sull'Infowindows del marker
 
             }
 
@@ -584,6 +614,7 @@ public class MapViewFragment extends Fragment {
     }
 
 
+
     private class HttpCalls extends AsyncTask<String, Void, String> {
 
         HttpCalls(GoogleMap map, LatLng position) {
@@ -615,6 +646,9 @@ public class MapViewFragment extends Fragment {
                     ((MainActivity)getActivity()).apriFragmentFacebook();
                 }
 
+                if(mainObject.has("data")==false){
+                    return;
+                }
                 JSONArray array = mainObject.getJSONArray("data");
                 for(int i=0; i<array.length(); i++){
                     JSONObject objectInArray = array.getJSONObject(i);
@@ -622,8 +656,10 @@ public class MapViewFragment extends Fragment {
                     //Imposto un marker per ogni posizione restituita nel json
 
                     String title = getResources().getString(R.string.sent_on);
+                    String tipoMarker = "STORICO";//Tipo marker è impostato a "STORICO" oppure a "MAPPA" a seconda se si tratta di un marker della funzione storico o mappa, mi serve per la funzione di cancellazione che puo avvenire solo sullo storico
                     if(objectInArray.has("NAME")){//Se ha il nome nel json allora è il servizio getPositions quindi metto il nome come titolo
                         title = objectInArray.getString("NAME");
+                        tipoMarker = "MAPPA";
                     }
                     final SharedPreferences preferencesImpostazioni = getActivity().getSharedPreferences(MY_PREFS_SETTINGS, MODE_PRIVATE);
                     if( objectInArray.has("EMAIL") && objectInArray.has("VISUALIZZA_MAIL") && objectInArray.getString("VISUALIZZA_MAIL").equals("1") ){//Se ha EMAIL nel json e l'utente aveva consentito la visualizzazione allora è il servizio getPositions quindi aggiungo EMAIL al titolo
@@ -634,9 +670,12 @@ public class MapViewFragment extends Fragment {
                             Double.parseDouble(objectInArray.getString("LONGITUDE")),
                             title,
                             Utilita.getReadableDate(objectInArray.getString("POSITION_DATE")),
-                            BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                            BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN),
+                            tipoMarker);
+
                     mClusterManager.addItem(offsetItem);
                     mClusterManager.setRenderer(new OwnIconRendered(getActivity().getApplicationContext(), googleMap, mClusterManager));
+
                 }
 
             } catch (JSONException e) {

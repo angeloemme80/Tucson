@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity
     private GoogleApiClient client;
     private double longitude;
     private double latitude;
-    public static final String URL_SERVIZI = "http://russoangela.altervista.org/TucsonREST/";
+    public static final String URL_SERVIZI = "http://russoangela.altervista.org/TucsonREST_11/";
     public static final String MY_PREFS_NAME = "MyPrefsFile";//Salvo le informazioni sul login di facebook
     public static final String MY_PREFS_SETTINGS = "MyPrefsSettings";//Salvo le informazioni del fragment delle impostazioni
 
