@@ -23,7 +23,8 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/tvInfo"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:typeface="monospace" />
+                android:typeface="monospace"
+                android:autoLink="web"/>
 
         </RelativeLayout>
     </ScrollView>

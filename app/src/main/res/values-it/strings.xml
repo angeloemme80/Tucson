@@ -25,7 +25,7 @@
     <string name="current_position">Questa è la mia attuale posizione</string>
     <string name="historical_positions">Storico posizioni</string>
     <string name="must_logged">Attenzione, è necessario essere loggati per visualizzare le posizioni sulla mappa</string>
-    <string name="info_text"><b>Tucson</b> è un App che si basa sulla geolocalizzazione della tua Hyundai Tucson.\n\n<i>Funzioni disponibili</i>:\n\n<b>Facebook Login</b>: Effettua il login con il tuo account facebook.\n\n<b>Mappa</b>: Ti permette di visualizzare sul territorio tutte le Hyundai Tucson che hanno inviato la loro posizione attraverso l\'App. Visualizza solo l\'ultima posizione inviata da ciascun utente.\n\n<b>Storico posizioni</b>: Ti permette di visualizzare sul territorio tutte le posizioni che hai inviato fino ad ora. Visualizza solo le posizione inviate da te.\n\n<b>Impostazioni</b>: Ti permette di scegliere alcune impostazioni come il numero massimo di posizioni da visualizzare nello storico oppure se inviare o meno anche l\'indirizzo email associato al tuo account facebook\n\n<b>Info</b>: Info sulle funzionalità dell\'applicazione.</string>
+    <string name="info_text"><b>Tucson</b> è un App che si basa sulla geolocalizzazione della tua Hyundai Tucson. In collaborazione con il gruppo facebook <b>\"Hyundai Tucson Italia\"</b>\n\n<i>Funzioni disponibili</i>:\n\n<b>Facebook Login</b>: Effettua il login con il tuo account facebook.\n\n<b>Mappa</b>: Ti permette di visualizzare sul territorio tutte le Hyundai Tucson che hanno inviato la loro posizione attraverso l\'App. Visualizza solo l\'ultima posizione inviata da ciascun utente. Possibilità di inviare la propria posizione anche in modalità anonima\n\n<b>Storico posizioni</b>: Ti permette di visualizzare sul territorio tutte le posizioni che hai inviato fino ad ora. Visualizza solo le posizione inviate da te. E\' possibile cancellare le posizioni inviate selezionando la finestra di informazioni del marker\n\n<b>Impostazioni</b>: Ti permette di scegliere alcune impostazioni come il numero massimo di posizioni da visualizzare nello storico oppure se inviare o meno anche l\'indirizzo email associato al tuo account facebook\n\n<b>Info</b>: Info sulle funzionalità dell\'applicazione.</string>
     <string name="allow_view_email">Quando invii la tua posizione invia anche il tuo indirizzo mail</string>
     <string name="max_historical_positions">Numero massimo di posizioni visibili nella funzionalità "Storico posizioni"</string>
     <string name="no_internet">Nessuna connessione internet</string>
@@ -40,5 +40,6 @@
     <string name="no">No</string>
     <string name="send_anonymous">Invia posizione anonima</string>
     <string name="anonymous">Anonimo</string>
+    <string name="collaboration">angelarussoaav@gmail.com\nIn collaborazione con il gruppo facebook\n <b>\"Hyundai Tucson Italia\"</b></string>
 
 </resources>
