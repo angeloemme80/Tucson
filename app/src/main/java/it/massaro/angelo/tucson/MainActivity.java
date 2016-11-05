@@ -29,6 +29,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -158,6 +159,8 @@ public class MainActivity extends AppCompatActivity
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
+
     }
 
 
@@ -234,6 +237,8 @@ public class MainActivity extends AppCompatActivity
             apriFragmentImpostazioni();
         } else if (id == R.id.nav_info) {
             apriFragmentInfo();
+        } else if (id == R.id.nav_hyundai_tucson_italia) {
+            apriFragmentTucsonItalia();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -304,6 +309,13 @@ public class MainActivity extends AppCompatActivity
 
     public void apriFragmentInfo(){
         Fragment fragment = Fragment.instantiate(this, InfoFragment.class.getName());
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.replace(R.id.content_main, fragment);
+        ft.commit();
+    }
+
+    public void apriFragmentTucsonItalia(){
+        Fragment fragment = Fragment.instantiate(this, TucsonItaliaFragment.class.getName());
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.content_main, fragment);
         ft.commit();
