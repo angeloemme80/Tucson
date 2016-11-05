@@ -662,7 +662,9 @@ public class MapViewFragment extends Fragment {
                         tipoMarker = "MAPPA";
                     }
                     final SharedPreferences preferencesImpostazioni = getActivity().getSharedPreferences(MY_PREFS_SETTINGS, MODE_PRIVATE);
-                    if( objectInArray.has("EMAIL") && objectInArray.has("VISUALIZZA_MAIL") && objectInArray.getString("VISUALIZZA_MAIL").equals("1") ){//Se ha EMAIL nel json e l'utente aveva consentito la visualizzazione allora è il servizio getPositions quindi aggiungo EMAIL al titolo
+                    if( objectInArray.has("ANONIMO") && objectInArray.getString("ANONIMO").equals("1") ){
+                        title = getResources().getString(R.string.anonymous);
+                    } else if( objectInArray.has("EMAIL") && objectInArray.has("VISUALIZZA_MAIL") && objectInArray.getString("VISUALIZZA_MAIL").equals("1") ){//Se ha EMAIL nel json e l'utente aveva consentito la visualizzazione allora è il servizio getPositions quindi aggiungo EMAIL al titolo
                         title += " - " + objectInArray.getString("EMAIL");
                     }
 

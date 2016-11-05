@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity
                             public void onClick(View v) {
                                 if(isNetworkAvailable() ){
                                     if (getLongitude()!=0.0 && getLatitude()!=0.0) {
-                                        new HttpCalls().execute(URL_SERVIZI + preferences.getString("facebookId", ""), "POST", "longitude=" + getLongitude() + "&latitude=" + getLatitude() + "&token=" + preferences.getString("accessToken", "") + "&visualizza_mail=" + preferencesImpostazioni.getBoolean("switch_allow", false));//EAAI42sewJxMBAPEobC1jOsSITrQztFUXwI7qOSbjPzhsJUfGqxIsY3ZBQCb3ex8dBngkupRaqZBDwfEwzDZAJfcQRvBZCPCYQrNSPSPgSSYtqFFmvhiUSzHZBbboHqTBAxwCjFSx4J2Qi5d0OMRXmjxlbZBykGgtaw3oIgQR6myZC5iF9mZCWBScUVie4rmIsqZAMpfZCf2rA2zE6uhwhcBnQN");
+                                        new HttpCalls().execute(URL_SERVIZI + preferences.getString("facebookId", ""), "POST", "longitude=" + getLongitude() + "&latitude=" + getLatitude() + "&token=" + preferences.getString("accessToken", "") + "&visualizza_mail=" + preferencesImpostazioni.getBoolean("switch_allow", false) + "&anonimo=" + preferencesImpostazioni.getBoolean("switch_anonimo", false) );
                                     }
                                 } else {
                                     Toast toast = Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_internet), Toast.LENGTH_LONG);

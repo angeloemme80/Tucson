@@ -40,7 +40,7 @@ public class ImpostazioniFragment extends Fragment {
         //TextView tvMaxPositions = (TextView) rootView.findViewById(R.id.tvMaxPositions);
         //tvMaxPositions.setTypeface(typeFace);
 
-        //Switch
+        //Switch visualizza email
         Switch switch_allow = (Switch) rootView.findViewById(R.id.switch_allow);
         switch_allow.setChecked( preferencesImpostazioni.getBoolean("switch_allow",false) );
         switch_allow.setOnClickListener(new View.OnClickListener() {
@@ -48,6 +48,18 @@ public class ImpostazioniFragment extends Fragment {
             public void onClick(View v) {
                 SharedPreferences.Editor editor = getActivity().getSharedPreferences(MY_PREFS_SETTINGS, getActivity().MODE_PRIVATE).edit();
                 editor.putBoolean("switch_allow", ((Switch) v).isChecked() );
+                editor.commit();
+            }
+        });
+
+        //Switch Anonimo
+        Switch switch_anonimo = (Switch) rootView.findViewById(R.id.switch_anonimo);
+        switch_anonimo.setChecked( preferencesImpostazioni.getBoolean("switch_anonimo",false) );
+        switch_anonimo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor editor = getActivity().getSharedPreferences(MY_PREFS_SETTINGS, getActivity().MODE_PRIVATE).edit();
+                editor.putBoolean("switch_anonimo", ((Switch) v).isChecked() );
                 editor.commit();
             }
         });
