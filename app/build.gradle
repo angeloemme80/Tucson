@@ -2,12 +2,12 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.2"
+    buildToolsVersion "25.0.0"
 
     defaultConfig {
         applicationId "it.massaro.angelo.tucson"
         minSdkVersion 15
-        targetSdkVersion 24
+        targetSdkVersion 25
         versionCode 6
         versionName "1.5"
         multiDexEnabled true
